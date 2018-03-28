@@ -1,0 +1,13 @@
+digraph flowchart {
+    node [ shape="box"];
+
+    Client -> SLB;
+    SLB -> "front nginx";
+    "front nginx" -> "static/CIF_BOSS" [label=".css|gif|js|...$"];
+    "front nginx" -> "cif-front Home page" [label="/"];
+    "front nginx" -> "cif-front" [label="/cif"];
+    "front nginx" -> clms [label="/clms"];
+    "front nginx" -> ams [label="/ams"];
+    "front nginx" -> cems [label="/cems"];
+    "front nginx" -> account [label="/account"];
+}

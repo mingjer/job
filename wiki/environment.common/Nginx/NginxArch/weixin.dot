@@ -1,0 +1,12 @@
+digraph flowchart {
+    node [ shape="box"];
+
+    Client -> SLB;
+    SLB -> "front nginx";
+    "front nginx" -> "static/CIF_WECHAT" [label=".css|gif|js|...$"]
+    "front nginx" -> wxnode [label="/"];
+    "front nginx" -> "/srv/weixin" [label="/act"];
+    wxnode -> "backend nginx";
+    "backend nginx" -> "cif-front" [label="/cif"];
+    "backend nginx" -> "clms" [label="/clms"];
+}
