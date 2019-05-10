@@ -1,0 +1,4 @@
+FROM docker.51xf.cn/jetty/jetty:9.4
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+ADD 51xf_war /opt/soft/jetty/webapps

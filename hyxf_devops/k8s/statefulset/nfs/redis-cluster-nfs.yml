@@ -1,0 +1,328 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: redis-k8s-dev1-c0
+  spec:
+    capacity:
+      storage: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "redis-cluster-k8s-dev1"
+    nfs:
+      path: /k8s/k8s-dev1/redis/cluster/redis0
+      server: 192.192.0.79
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: redis-k8s-dev1-c1
+  spec:
+    capacity:
+      storage: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "redis-cluster-k8s-dev1"
+    nfs:
+      path: /k8s/k8s-dev1/redis/cluster/redis1
+      server: 192.192.0.79
+
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: redis-cluster
+    namespace: k8s-dev1
+
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: Role
+  metadata:
+    name: redis-cluster
+    namespace: k8s-dev1
+  rules:
+    - apiGroups:
+        - ""
+      resources:
+        - endpoints
+      verbs:
+        - get
+
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: RoleBinding
+  metadata:
+    name: redis-cluster
+    namespace: k8s-dev1
+  subjects:
+  - kind: ServiceAccount
+    name: redis-cluster
+    namespace: k8s-dev1
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: redis-cluster
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: redis-cfm
+    namespace: k8s-dev1
+    labels:
+      addonmanager.kubernetes.io/mode: Reconcile
+  data:
+      redis-master.conf: |
+        port 6379
+        tcp-backlog 511
+        timeout 0
+        tcp-keepalive 0
+        loglevel notice
+        databases 16
+        save 900 1
+        save 300 10
+        save 60 10000
+        stop-writes-on-bgsave-error yes
+        rdbcompression yes
+        rdbchecksum yes
+        dbfilename dump.rdb
+        dir /data/
+        slave-serve-stale-data yes
+        repl-diskless-sync no
+        repl-diskless-sync-delay 5
+        repl-disable-tcp-nodelay no
+        slave-priority 100
+        appendonly yes
+        appendfilename "appendonly.aof"
+        appendfsync everysec
+        no-appendfsync-on-rewrite no
+        auto-aof-rewrite-percentage 100
+        auto-aof-rewrite-min-size 64mb
+        aof-load-truncated yes
+        lua-time-limit 5000
+        slowlog-log-slower-than 10000
+        slowlog-max-len 128
+        latency-monitor-threshold 0
+        notify-keyspace-events ""
+        hash-max-ziplist-entries 512
+        hash-max-ziplist-value 64
+        list-max-ziplist-entries 512
+        list-max-ziplist-value 64
+        set-max-intset-entries 512
+        zset-max-ziplist-entries 128
+        zset-max-ziplist-value 64
+        hll-sparse-max-bytes 3000
+        activerehashing yes
+        client-output-buffer-limit normal 0 0 0
+        client-output-buffer-limit slave 256mb 64mb 60
+        client-output-buffer-limit pubsub 64mb 16mb 60
+        hz 10
+        aof-rewrite-incremental-fsync yes
+        requirepass  "123qwe"
+        masterauth   "123qwe"
+      redis-slave.conf: |
+        port 6379
+        slaveof redis-m-0.redis-m-svc 6379
+        tcp-backlog 511
+        timeout 0
+        tcp-keepalive 0
+        loglevel notice
+        databases 16
+        save 900 1
+        save 300 10
+        save 60 10000
+        stop-writes-on-bgsave-error yes
+        rdbcompression yes
+        rdbchecksum yes
+        dbfilename dump.rdb
+        dir /data/
+        slave-serve-stale-data yes
+        slave-read-only yes
+        repl-diskless-sync no
+        repl-diskless-sync-delay 5
+        repl-disable-tcp-nodelay no
+        slave-priority 100
+        appendonly yes
+        appendfilename "appendonly.aof"
+        appendfsync everysec
+        no-appendfsync-on-rewrite no
+        auto-aof-rewrite-percentage 100
+        auto-aof-rewrite-min-size 64mb
+        aof-load-truncated yes
+        lua-time-limit 5000
+        slowlog-log-slower-than 10000
+        slowlog-max-len 128
+        latency-monitor-threshold 0
+        notify-keyspace-events ""
+        hash-max-ziplist-entries 512
+        hash-max-ziplist-value 64
+        list-max-ziplist-entries 512
+        list-max-ziplist-value 64
+        set-max-intset-entries 512
+        zset-max-ziplist-entries 128
+        zset-max-ziplist-value 64
+        hll-sparse-max-bytes 3000
+        activerehashing yes
+        client-output-buffer-limit normal 0 0 0
+        client-output-buffer-limit slave 256mb 64mb 60
+        client-output-buffer-limit pubsub 64mb 16mb 60
+        hz 10
+        aof-rewrite-incremental-fsync yes
+        requirepass  "123qwe"
+        masterauth   "123qwe"
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: redis-m-svc
+    namespace: k8s-dev1
+  spec:
+    clusterIP: None
+    ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+    selector:
+      app: redis-m-dm
+
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    name: redis-m
+    namespace: k8s-dev1
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: redis-m-dm
+    serviceName: redis-m-svc
+    template:
+      metadata:
+        labels:
+          app: redis-m-dm
+      spec:
+        containers:
+        - name: redis-m-pod
+          image: docker.51xf.cn/redis/redis:3.2
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          command:
+            - "redis-server"
+          args:
+            - "/tmp/redis-master.conf"
+            - "--protected-mode"
+            - "no"
+          ports:
+          - containerPort: 6379
+            name: maste-rport
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /tmp/
+            name: redis-cf
+            readOnly: false
+          - mountPath: /data/
+            name: storage
+            readOnly: false
+        serviceAccountName: redis-cluster
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: redis-cf
+          configMap:
+            name: redis-cfm
+            items:
+              - key: redis-master.conf
+                path: redis-master.conf
+    volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        storageClassName: "redis-cluster-k8s-dev1"
+        resources:
+          requests:
+            storage: 1Gi
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: redis-s-svc
+    namespace: k8s-dev1
+  spec:
+    clusterIP: None
+    ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+    selector:
+      app: redis-s-dm
+
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    name: redis-s
+    namespace: k8s-dev1
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: redis-s-dm
+    serviceName: redis-s-svc
+    template:
+      metadata:
+        labels:
+          app: redis-s-dm
+      spec:
+        containers:
+        - name: redis-s-pod
+          image: docker.51xf.cn/redis/redis:3.2
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          command:
+            - "redis-server"
+          args:
+            - "/tmp/redis-slave.conf"
+            - "--protected-mode"
+            - "no"
+          ports:
+          - containerPort: 6379
+            name: slave-port
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /tmp/
+            name: redis-cf
+            readOnly: false
+          - mountPath: /data/
+            name: storage
+            readOnly: false
+        serviceAccountName: redis-cluster
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: redis-cf
+          configMap:
+            name: redis-cfm
+            items:
+              - key: redis-slave.conf
+                path: redis-slave.conf
+    volumeClaimTemplates:
+    - metadata:
+        name: storage
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        storageClassName: "redis-cluster-k8s-dev1"
+        resources:
+          requests:
+            storage: 1Gi

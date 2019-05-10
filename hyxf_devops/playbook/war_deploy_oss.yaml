@@ -1,0 +1,141 @@
+---
+- hosts: '{{ host }}'
+  remote_user: root
+  gather_facts: false
+  vars:
+#    war_file_name: '{{ war_file_name }}'
+#    md5_war: '{{ md5_war }}'
+    app_name: '{{ app_name }}'
+    pro_env: '{{ pro_env }}'
+    version: '{{ version }}'
+    app_port: '{{ app_port }}'
+
+  tasks:
+#####判断相关的目录是否存在,不存在则创建
+    - name: create directory if don't exist
+      block:
+      - name: "Checking directory"
+        stat:
+          path: "{{ item }}"
+        with_items:
+          - ["/data/backup/"]
+          - ["/data/oom/"]
+          - ["/data/logs/"]
+          - ["/data/server/{{ app_name }}/"]
+          - ["/tmp/{{ app_name }}_{{ pro_env }}/"]
+        register: folder_stats
+
+      - debug: msg= "{{ folder_stats.results }}"
+
+      - name: "creat multiple directory"
+        file:
+          path: "{{ item.item }}"
+          state: directory
+          mode: 0755
+          group: root
+          owner: root
+        with_items:
+          - "{{ folder_stats.results }}"
+        when: item.stat.exists == false
+
+#####不管临时文件是否存在，都直接删除,然后下载相关的文件       
+    - name: delete file and download file
+      block:
+      - name: delete tmp file
+        file:
+          state: absent
+          path: "/tmp/{{ app_name }}_{{ pro_env }}/{{ app_name }}-webapp-{{ version }}.war"
+        ignore_errors: yes
+
+###没有使用cdn的下载地址，主要是担心cdn未刷新完全。建议发布的包名称每次都不一样
+      - name: "download file"
+        get_url: 
+          url: "https://bxq-hz.oss-cn-hangzhou.aliyuncs.com/{{ app_name }}/{{ app_name }}-webapp-{{ version }}.war"
+          dest: "/tmp/{{ app_name }}_{{ pro_env }}/{{ app_name }}-webapp-{{ version }}.war"
+          mode: 0755
+          group: root
+          owner: root
+
+#####判断war文件的md5值,是否相等.相等则继续部署,否则停止部署
+#    - name: check md5
+#      block:
+#      - name: local warfile md5
+#        debug: msg={{ md5_war }}
+#
+#      - name: get new warfile md5sum
+#        shell: "md5sum /tmp/{{ app_name }}_{{ pro_env }}/{{ app_name }}.war |awk '{print $1}'"
+#        register: resultt
+#
+#      - name: remote warfile md5
+#        debug: msg={{ resultt.stdout }}
+#
+#      - name: Stop building if you don't have the same md5
+#        fail: msg="md5 is difference stop build"
+#        when: resultt.stdout != "{{ md5_war }}"
+
+####停止原来的服务
+    - name: stop service
+      block:
+      - name: stop {{ app_name }} service
+        shell: "/data/server/{{ app_name }}/bin/catalina.sh stop"
+        register: process_stop_cd
+        ignore_errors: yes
+
+      - debug: msg= "{{ process_stop_cd }}"
+
+      - name: check if or not {{ app_name }} is still running
+        shell: ps -ef | grep {{ app_name }} | grep java | grep -v grep | wc -l
+        register: app_status
+
+      - debug: msg= "{{ app_status }}"
+
+      - name: force kill pid
+        shell: ps -ef | grep {{ app_name }} | grep java | grep -v grep | awk '{print $2}' |xargs kill -9
+        when: app_status.stdout|int > 0
+        ignore_errors: yes
+
+####备份旧的war包,然后删除对应的缓存       
+    - name: backup and delete {{ app_name }}
+      block:
+      - name: get current date
+        set_fact: mydate="{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"
+
+      - name: create file with a date in name
+        file: 
+          path: "/data/backup/{{ app_name }}/{{ mydate }}"
+          state: directory
+          mode: 0755
+          group: root
+          owner: root
+
+      - name: backup warfile
+        shell: "cp ROOT.war /data/backup/{{ app_name }}/{{ mydate }}/"
+        args:
+          chdir: /data/server/{{ app_name }}/webapps/
+        ignore_errors: yes
+
+#####先删除对应的目录，然后在创建该目录，使用的是嵌套循环
+      - name: delete old data and clean cache
+        file:
+          path: "{{ item[0] }}" 
+          state: "{{ item[1] }}"
+          mode: 0755
+          group: root
+          owner: root
+        with_nested:
+          - [ "/data/server/{{ app_name }}/webapps/", "/data/server/{{ app_name }}/work/" ]
+          - [ "absent", "directory" ]
+        ignore_errors: yes
+
+#####部署相对应的服务,但是会做相关的判断
+      always:
+        - name: copy new warfile
+          shell: 'cp /tmp/{{ app_name }}_{{ pro_env }}/{{ app_name }}-webapp-{{ version }}.war /data/server/{{ app_name }}/webapps/ROOT.war'
+
+        - name: start process
+          shell: "/data/server/{{ app_name }}/bin/catalina.sh start"
+          async: 40
+          poll: 0
+
+        - name: wait start process
+          wait_for: port={{ app_port }} state=started

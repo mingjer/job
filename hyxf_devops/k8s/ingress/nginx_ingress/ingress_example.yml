@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: superdiamond-ingress
+    namespace: kube-public
+  spec:
+    tls:
+    - hosts:
+      - sp.51xf.cn
+      secretName: secret-tls
+    rules:
+    - host: sp.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: superdiamond-svc
+            servicePort: 8080
+            
+- apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: tomcat-ingress
+    namespace: dev1
+  spec:
+    tls:
+    - hosts:
+      - ingress.51xf.cn
+      - user-dev1.51xf.cn
+      - console-dev1.51xf.cn
+      - console-dev1-nodejs.51xf.cn
+      secretName: secret-tls-dev1
+    rules:
+    - host: ingress.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: tomcat-service
+            servicePort: 8080
+        - path: /httpd
+          backend:
+            serviceName: httpd-service
+            servicePort: 80
+  
+#        - path: /node
+#          backend:
+#            serviceName: console-nodejs-svc
+#            servicePort: 8080
+  
+    - host: user-dev1.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: user-svc
+            servicePort: 8080
+  
+  
+    - host: console-dev1.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: console-static-svc
+            servicePort: 8080
+  
+    - host: console-nodejs-dev1.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: console-nodejs-svc
+            servicePort: 8080

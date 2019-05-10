@@ -1,0 +1,74 @@
+---
+- hosts: '{{ host }}'
+#  become: yes
+#  become_user: app
+  gather_facts: false
+  vars:
+    version: '{{ version }}'
+    src_dir: '{{ src_dir }}'
+    dest_dir: '{{ dest_dir }}'
+    app_user: app
+    nodejs_port: '{{ nodejs_port }}'
+    ansible_environment: '{{ ansible_environment }}'
+   
+  tasks:
+#####判断相关的目录是否存在,不存在则创建
+    - name: create directory if don't exist
+      block:
+      - name: "Checking directory"
+        stat:
+          path: "{{ item }}"
+        with_items:
+          - ["/opt/soft/"]
+          - ["/opt/soft/nodejs"]
+          - ["/opt/soft/nodejs/{{ dest_dir }}"]
+        register: folder_stats
+            
+      - name: "creat multiple directory"
+        file:
+          path: "{{item.item}}"
+          state: directory
+          mode: 0755
+          group: app
+          owner: app
+        with_items:
+        - "{{folder_stats.results}}"
+        when: item.stat.exists == false
+
+#####关闭nodejs服务     
+      - name: "check npm"
+        shell: ps -ef |grep nodejs |grep -v grep|wc -l
+        register: npm_status
+        
+      - name: "stop npm"
+        shell: cd /opt/soft/nodejs/{{ dest_dir }} && npm stop
+        args:
+            chdir: /opt/soft/nodejs/{{ dest_dir }}
+        when: npm_status.stdout|int > 0
+        ignore_errors: yes
+
+#####同步最新代码文件
+      - name: sync file
+        synchronize:
+          use_ssh_args: yes
+          src: "{{ item }}"
+          dest: /opt/soft/nodejs/
+          delete: yes
+          rsync_opts:
+            - "--exclude=.git"
+            - "--exclude=.idea"
+            - "--exclude=.gitignore"
+        with_items:
+          - ["{{ src_dir }}"]
+        
+#####Install npm packages
+      - name: Install npm packages 
+        shell: chown -R app.app /opt/soft/nodejs/{{ dest_dir }} && source /home/app/.bashrc && cd /opt/soft/nodejs/{{ dest_dir }} && chmod -R 777 /opt/soft/nodejs && npm install
+
+#####start npm
+      - name: start npm
+        shell: cd /opt/soft/nodejs/{{ dest_dir }} && EGG_SERVER_ENV={{ ansible_environment }} npm start >> out.put
+#      - name: check port
+#        wait_for:
+#          port: "{{ nodejs_port }}"
+#          state: started

@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-svc
+  namespace: 51xf_namespace
+spec:
+  type: NodePort
+  ports:
+  - name: http-pub-port
+    port: 8080
+    targetPort: 8080
+  - name: http-private-port
+    port: 9191
+    targetPort: 9191
+  selector:
+    app: zookeeper-dm
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: 51xf_namespace
+spec:
+  selector:
+    matchLabels:
+      app: zookeeper-dm
+  replicas: rc_no
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: zookeeper-dm
+        version: v-51xf_number
+    spec:
+      terminationGracePeriodSeconds: 60
+      initContainers:
+      - name: git-init-container
+        image: docker.51xf.cn/k8s/git:zookeeper
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c","git pull && cp -a ./ /opt/soft/jar/config/"]
+        volumeMounts:
+        - name: certfile
+          mountPath: /opt/soft/jar/config/
+      containers:
+      - name: zookeeper
+        image: docker.51xf.cn/51xf/payment-direct-transaction:master
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: certfile
+          mountPath: /opt/soft/jar/config/
+        command: ["/bin/sh","-c","cd ./config/sql/zktool/ && sh ./start-k8s-dev1.sh"]
+      volumes:
+      - name: certfile
+        emptyDir: {}

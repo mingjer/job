@@ -1,0 +1,6 @@
+# Local configuration for Mutt.
+set from="devops@htrader.cn"
+set sendmail="/usr/bin/msmtp"
+set use_from=yes
+set realname="devops@htrader.cn"
+set editor="vim"

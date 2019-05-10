@@ -1,0 +1,10 @@
+FROM docker.51xf.cn/mysql/mysql:5.7.24
+
+MAINTAINER HongJie <hongjie@51xf.cn>
+
+#设置root用户密码
+ENV MYSQL_ROOT_PASSWORD='123456'
+ 
+#将所需文件放到容器中
+COPY ./data/* /docker-entrypoint-initdb.d/
+COPY ./ddl/* /docker-entrypoint-initdb.d

@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: mysql-k8s-dev1-0
+  spec:
+    capacity:
+      storage: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: "mysql-k8s-dev1"
+    hostPath:
+      path: "/k8s/k8s-dev1/mysql/mysql0"
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: data-mysql-m-k8s-dev1
+    namespace: k8s-dev1
+  spec:
+    storageClassName: mysql-k8s-dev1
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: mysql-secret
+    namespace: k8s-dev1
+  type: Opaque
+  data:
+  #该密码是经过base64加密过的，原始密码为123456
+    mysql-root-password: MTIzNDU2
+    mysql-password: MTIzNDU2
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: mysql-m-svc
+    namespace: k8s-dev1
+  spec:
+    ports:
+    - name: mysql
+      port: 3306
+    clusterIP: None
+    selector:
+      app: mysql-m-dm
+
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    name: mysql-m-sts
+    namespace: k8s-dev1
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: mysql-m-dm
+    serviceName: mysql-m-svc
+    template:
+      metadata:
+        labels:
+          app: mysql-m-dm
+          version: v-51xf_number
+      spec:
+        nodeSelector:
+          mysqldata: mysqldata
+        tolerations:
+        - key: "nfs"
+          operator: "Exists"
+          effect: "NoSchedule"
+        containers:
+        - name: mysql
+          image: docker.51xf.cn/51xf/db-base
+          imagePullPolicy: Always
+          args:
+            - "--ignore-db-dir=lost+found"
+            - "--character-set-server=utf8mb4"
+            - "--collation-server=utf8mb4_bin"
+            - "--lower-case-table-names=1"
+            - "--sql-mode="
+            - "--skip_ssl"
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: mysql-root-password
+          - name: TZ
+            value: Asia/Shanghai
+          ports:
+          - containerPort: 3306
+            name: mysql
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "500m"
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/mysql
+          - name: host-time
+            mountPath: /etc/localtime
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data-mysql-m-k8s-dev1
+        - name: host-time
+          hostPath:
+            path: /etc/localtime

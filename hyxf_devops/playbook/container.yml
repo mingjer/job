@@ -1,0 +1,102 @@
+---
+- hosts: '{{ host }}'
+  remote_user: root
+  vars:
+    app_name: '{{ app_name }}'
+    docker_image_name: '{{ docker_image_name }}'
+    new_tag: '{{ new_tag }}'
+    dubbo_port: '{{ dubbo_port }}'
+    server_port: '{{ server_port }}'
+    src_dir: '{{ src_dir }}'
+    SPRING_PROFILES: '{{ SPRING_PROFILES }}'
+    netty_websocket_port: '{{ netty_websocket_port }}'
+
+  tasks:
+    - name: install software
+      yum: 
+        name: "{{item}}"
+        state: latest
+      with_items:
+        - 'docker'
+        - 'python2-pip'
+
+    - name: "start service"
+      systemd:
+        name: "{{item}}"
+        state: started
+        daemon_reload: yes
+        enabled: yes
+      with_items:
+        - 'docker'
+
+    - name: install docker-py module
+      pip: 
+        name: '{{ item }}'
+        state: latest
+        extra_args: --index-url http://pypi.douban.com/simple --trusted-host pypi.douban.com
+      with_items:
+        - 'pip'
+        - 'docker-py'
+
+    - name: sync hosts file
+      synchronize: 
+        use_ssh_args: yes
+        src: '{{ src_dir }}'
+        dest: /etc/
+        rsync_opts:
+          - '--exclude=.git'
+          - '--exclude=.idea'
+          - '--exclude=.gitignore'
+
+    - name: add current hostip hostname to hosts
+      shell: echo -e "\n{{ansible_default_ipv4.address}}    {{ ansible_hostname }}" >> /etc/hosts
+
+    - name: pull new docker image
+      docker_image:
+        name: '{{ docker_image_name }}'
+        tag: '{{ new_tag }}'
+        force: yes
+
+    - name: judgment docker container if or not running
+      shell: docker ps -aq -f name= '{{ app_name }}' |wc -l
+      register: resultt
+
+    - name: "debug check resultt"
+      debug: var=resultt.stdout verbosity=0
+
+    - name: stop and remove a container 
+      docker_container: 
+        name: '{{ app_name }}'
+        state: absent
+      when: resultt.stdout > 0
+  
+#####docker_container模块ansible2.6版本有问题无法使用
+#    - name: start docker container
+#      docker_container: 
+#        name: '{{ app_name }}'
+#        image: "{{ docker_image_name }}:{{ new_tag }}"
+#        hostname: '{{ ansible_hostname }}'
+#        privileged: yes
+#        restart_policy: always
+#        state: started
+#        published_ports:
+#          - '{{ port_name }}'
+#        volumes:
+#          - /data/logs:/data/logs
+#          - /etc/hosts:/etc/hosts
+#################################################
+    - name: cat app_name
+      shell: echo {{ app_name }}
+      register: content
+
+    - name: start docker container
+      shell: docker run -dit --name {{ app_name }} --hostname {{ ansible_hostname }} -e SPRING_PROFILES={{ SPRING_PROFILES }} -p {{ dubbo_port }}:{{ dubbo_port }} -p {{ server_port }}:{{ server_port }} -v /data/logs/:/data/logs/ -v /data/oom/:/data/oom/ -v /etc/hosts:/etc/hosts --restart=always --privileged=true {{ docker_image_name }}:{{ new_tag }}
+      when: content.stdout == "cfds-crm" or content.stdout == "cfds-cfd"
+                        
+    - name: start docker container of interface
+      shell: docker run -dit --name {{ app_name }} --hostname {{ ansible_hostname }} -e SPRING_PROFILES={{ SPRING_PROFILES }} -p {{ server_port }}:{{ server_port }} -p {{ netty_websocket_port }}:{{ netty_websocket_port }} -v /data/logs/:/data/logs/ -v /data/oom/:/data/oom/ -v /etc/hosts:/etc/hosts --restart=always --privileged=true {{ docker_image_name }}:{{ new_tag }}
+      when: content.stdout == "cfds-interface"
+
+    - name: start docker container
+      shell: docker run -dit --name {{ app_name }} --hostname {{ ansible_hostname }} -e SPRING_PROFILES={{ SPRING_PROFILES }} -p {{ server_port }}:{{ server_port }} -v /data/logs/:/data/logs/ -v /data/oom/:/data/oom/ -v /etc/hosts:/etc/hosts --restart=always --privileged=true {{ docker_image_name }}:{{ new_tag }}
+      when: content.stdout == "cfds-manager"

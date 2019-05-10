@@ -1,0 +1,14 @@
+---
+- hosts: '{{ host }}'
+  remote_user: root
+  gather_facts: false
+  vars:
+    service_name: '{{ service_name }}'
+    state: '{{ state }}'
+  tasks:
+#####停止原来的服务
+    - name: operating {{ service_name }} service
+      systemd: 
+        name: "{{ service_name }}"
+        state: '{{ state }}'
+      ignore_errors: yes

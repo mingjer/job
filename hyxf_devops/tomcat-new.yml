@@ -1,0 +1,9 @@
+- hosts: "{{ host }}"
+  roles:
+    - {role: "tomcat-proj-init",
+        appName: "{{ tomcat_name }}",
+        tomcatport: "{{ tomcat_port }}",
+        tomcatshutdownport: "{{ tomcat_shut_port }}",
+        JAVA_XMX: 2048,
+        agent_enabled: true
+        }

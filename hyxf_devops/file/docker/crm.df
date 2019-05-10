@@ -1,0 +1,14 @@
+FROM registry.docker-cn.com/library/openjdk:8-jdk-alpine3.7
+MAINTAINER "WangXiangYang <wangxiangyang@htrader.cn>"
+
+ENV SPRING_PROFILES=test
+
+RUN mkdir -p /data/logs \
+ && mkdir -p /data/oom
+
+WORKDIR /data/server/crm/
+COPY ./crm-core/target/crm.jar ./crm-core/src/main/resources/*.properties ./
+
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom","-Dspring.profiles.active=${SPRING_PROFILES}","-jar","./crm.jar"]
+
+EXPOSE 8082

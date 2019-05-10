@@ -1,0 +1,186 @@
+- hosts: PROD_*_QIHU* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-360-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7010
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_QIHU_SCHEDULE_FQL_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-360-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7011
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_*_FQL* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-fenqile-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7000
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_QIHU_SCHEDULE_FQL_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-fenqile-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7001
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_BAIDU*_51FUND*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-51-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7020
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_JD1_FQL1
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-jd-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7040
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_JQH*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-jqh-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7050
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_KAKA_SCHEDULE_JQH_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-jqh-schedule 
+     Xmx: 3072
+     envs: prod
+     jar_port: 7051
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_KAKA*_SMY*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-kakaloan-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7060
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_KAKA_SCHEDULE_JQH_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-kakaloan-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7061
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_*_SMY*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-smy-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7070
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD-TOUTIAO-web0* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-toutiao-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7090
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD-TOUTIAO-SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-toutiao-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7091
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_小米*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-xiaomi-webapp
+     Xmx: 3072
+     envs: prod
+     jar_port: 7080
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_XIAOMI_SCHEDULE_BAIDU_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-xiaomi-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7081
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_CORE_*EasyFlow*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: easyflow-dpk
+     Xmx: 3072
+     envs: prod
+     jar_port: 7999
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_XIAOMI_SCHEDULE_BAIDU_SCHEDULE 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-baidu-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7031
+  roles:
+    - prod-jar-restart

@@ -1,0 +1,6 @@
+- hosts: "{{ host }}"
+  serial: 1
+  remote_user: app
+  roles:
+    - prod-urge-jar-deploy
+

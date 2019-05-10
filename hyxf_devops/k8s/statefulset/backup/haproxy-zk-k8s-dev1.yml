@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: haproxy-zk-cm
+    namespace: k8s-dev1
+  data:
+    haproxy.cfg: |
+      global
+              stats  timeout 30s
+              log    127.0.0.1 local0
+              daemon
+              nbproc 1
+      
+      defaults
+              mode    tcp
+              log     global
+              timeout connect 5000
+              timeout client  10m
+              timeout server  10m
+      
+      listen zk-0
+              bind    0.0.0.0:32181
+              mode    tcp
+              option  tcplog
+              balance roundrobin
+              server  zk-0.zk-svc zk-0.zk-svc:2181 check inter 2000 fall 2 rise 2 weight 1
+      
+      listen zk-1
+              bind    0.0.0.0:32182
+              mode    tcp
+              option  tcplog
+              balance roundrobin
+              server  zk-1.zk-svc zk-1.zk-svc:2181 check inter 2000 fall 2 rise 2 weight 1
+      
+      listen zk-2
+              bind    0.0.0.0:32183
+              mode    tcp
+              option  tcplog
+              balance roundrobin
+              server  zk-2.zk-svc zk-2.zk-svc:2181 check inter 2000 fall 2 rise 2 weight 1
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: haproxy-zk-svc
+    namespace: k8s-dev1
+    labels:
+      app: haproxy-zk-svc
+  spec:
+    clusterIP: None
+    selector:
+      app: haproxy-zk-dm
+
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    name: haproxy-zk-sts
+    namespace: k8s-dev1
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: haproxy-zk-dm
+    serviceName: haproxy-zk-svc
+    template:
+      metadata:
+        labels:
+          app: haproxy-zk-dm
+      spec:
+        containers:
+        - name: haproxy
+          image: docker.51xf.cn/k8s/haproxy:1.9.4
+          imagePullPolicy: Always
+          volumeMounts:
+          - mountPath: /usr/local/etc/haproxy/
+            readOnly: true
+            name: haproxy-conf
+        volumes:
+        - name: haproxy-conf
+          configMap:
+            name: haproxy-zk-cm
+            items:
+              - key: haproxy.cfg
+                path: haproxy.cfg

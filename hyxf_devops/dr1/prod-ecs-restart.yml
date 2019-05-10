@@ -1,0 +1,171 @@
+- hosts: PROD_ECS_Chk2_ConfigWeb2 
+  gather_facts: no
+  vars:
+    service_name: configweb
+    jetty_name: jettyCONFIGWEB
+    jetty_port: 9009
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Chk1_ConfigWeb1_Tamcx1
+  gather_facts: no
+  vars:
+    service_name: configweb
+    jetty_name: jettyCONFIGWEB
+    jetty_port: 9009
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Chk2_ConfigWeb2 
+  gather_facts: no
+  vars:
+    service_name: tamcx
+    jetty_name: jettyTAMCX
+    jetty_port: 9015
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Chk2_ConfigWeb2 
+  gather_facts: no
+- hosts: PROD_ECS_Acct1_Report1 
+  gather_facts: no
+  vars:
+    service_name: batch
+    jetty_name: jettyBATCH
+    jetty_port: 9007
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Pub2_Query2_Trans2 
+  gather_facts: no
+  vars:
+    service_name: pub
+    jetty_name: jettyPUB
+    jetty_port: 9011
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Pub1_Query1_Trans1 
+  gather_facts: no
+  vars:
+    service_name: pub
+    jetty_name: jettyPUB
+    jetty_port: 9011
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Pub2_Query2_Trans2 
+  gather_facts: no
+  vars:
+    service_name: trans
+    jetty_name: jettyTRANS
+    jetty_port: 9016
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Pub1_Query1_Trans1 
+  gather_facts: no
+  vars:
+    service_name: trans
+    jetty_name: jettyTRANS
+    jetty_port: 9016
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Chk3_Trans3
+  gather_facts: no
+  vars:
+    service_name: trans
+    jetty_name: jettyTRANS
+    jetty_port: 9016
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Chk4_Trans4
+  gather_facts: no
+  vars:
+    service_name: trans
+    jetty_name: jettyTRANS
+    jetty_port: 9016
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Chk2_ConfigWeb2 
+  gather_facts: no
+  vars:
+    service_name: chk
+    jetty_name: jettyCHK
+    jetty_port: 9008
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Chk1_ConfigWeb1_Tamcx1
+  gather_facts: no
+  vars:
+    service_name: chk
+    jetty_name: jettyCHK
+    jetty_port: 9008
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Chk3_Trans3
+  gather_facts: no
+  vars:
+    service_name: chk
+    jetty_name: jettyCHK
+    jetty_port: 9008
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Chk4_Trans4
+  gather_facts: no
+  vars:
+    service_name: chk
+    jetty_name: jettyCHK
+    jetty_port: 9008
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Pub2_Query2_Trans2 
+  gather_facts: no
+  vars:
+    service_name: query
+    jetty_name: jettyQUERY
+    jetty_port: 9012
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Pub1_Query1_Trans1
+  gather_facts: no
+  vars:
+    service_name: query
+    jetty_name: jettyQUERY
+    jetty_port: 9012
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_ECS_Acct1_Report1 
+  gather_facts: no
+  vars:
+    service_name: acct
+    jetty_name: jettyACCT
+    jetty_port: 9005
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_ECS_Acct2_Report2
+  gather_facts: no
+  vars:
+    service_name: acct
+    jetty_name: jettyACCT
+    jetty_port: 9005
+  tasks:
+    - include_tasks: apptasks.yml
+
+- hosts: PROD_convert1_consumer1 
+  gather_facts: no
+  vars:
+    service_name: consumer
+    jetty_name: jettyCONSUMER
+    jetty_port: 9010
+  tasks:
+    - include_tasks: apptasks.yml
+- hosts: PROD_convert2_consumer2 
+  gather_facts: no
+  vars:
+    service_name: consumer
+    jetty_name: jettyCONSUMER
+    jetty_port: 9010
+  tasks:
+    - include_tasks: apptasks.yml

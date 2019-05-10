@@ -1,0 +1,17 @@
+FROM docker.51xf.cn/nodejs/nodejs:8.14
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+ADD ./mock /mock
+ADD ./epel.repo  /etc/yum.repos.d/epel.repo
+
+RUN set -xe \
+&& npm install anyproxy -g \
+&& ln -s /usr/local/node-v$NODE_VERSION-linux-x64/bin/anyproxy \
+&& yum -y install nginx
+
+
+WORKDIR /mock/
+
+EXPOSE 1080 8001 8002
+
+ENTRYPOINT anyproxy --port 1080

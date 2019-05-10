@@ -1,0 +1,64 @@
+- hosts: '{{ host }}'
+  gather_facts: false
+  vars:
+    service_name: '{{ service_name }}'
+    app_user: app
+    jar_name: '{{ jar_name }}'
+    jar_port: '{{ jar_port }}'
+    jar_file: '{{ jar_file }}'
+    ansible_environment: '{{ ansible_environment }}'
+    start_bash: '{{ start_bash }}' 
+    stop_bash: '{{ stop_bash }}'
+  tasks:
+####停止原来的服务
+    - name: stop {{ jar_name }}
+      block:
+      - name: stop {{ jar_name }} service
+        systemd: 
+          name: "{{ jar_name }}"
+          state: stopped
+        ignore_errors: yes
+
+      - name: check if or not {{ jar_name }} is still running
+        shell: ps -ef | grep {{ jar_name }} | grep java | grep -v grep | wc -l
+        register: app_status
+
+      - debug: msg= "{{ app_status }}"
+
+      - name: force kill pid
+        shell: ps -ef | grep {{ jar_name }} | grep java | grep -v grep | awk '{print $2}' |xargs kill -9
+        when: app_status.stdout|int > 0
+        ignore_errors: yes
+
+####删除缓存
+    - name: delete old data and clean cache
+      file:
+        path: "{{ item[0] }}"
+        state: "{{ item[1] }}"
+        mode: 0755
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+      with_nested:
+        - [ "/opt/soft/jar/{{ jar_name }}" ]
+        - [ "absent", "directory" ]
+      ignore_errors: yes
+      
+####复制war包到远程主机上
+    - name: copy file
+      copy:
+        src: "{{ item }}"
+        dest: "/opt/soft/jar/{{ jar_name }}/"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+      with_items:
+        ["{{ jar_file }}","{{ start_bash }}","{{ stop_bash }}"]
+
+####启动服务        
+    - name: start {{ jar_name }}
+      shell: su - app&&cd /opt/soft/jar/"{{ jar_name }}" && sh start.sh "{{ ansible_environment }}"
+
+    - name: check port
+      wait_for:
+        port: "{{ jar_port }}"
+        state: started

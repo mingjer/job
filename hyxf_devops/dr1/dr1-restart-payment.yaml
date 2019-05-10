@@ -1,0 +1,66 @@
+#- hosts: DR1_payment_bg
+#  gather_facts: no
+#  remote_user: app
+#  vars:
+#     jar_name: hyxf-payment-admin
+#     Xmx: 1024
+#     envs: dr1
+#     jar_port: 7171 
+#  roles:
+#    - prod-jar-restart
+
+- hosts: DR1_payment-direct*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxf-payment-direct-transaction
+     Xmx: 1536 
+     envs: dr1
+     jar_port: 9296
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_payment-gateway*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxf-payment-gateway
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9191 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_payment-router*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxf-payment-router
+     Xmx: 1024
+     envs: dr1
+     jar_port: 9090 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_payment-third*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxf-payment-third-transaction
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9293
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_payment-transaction*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxf-payment-transaction
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9291
+  roles:
+    - prod-jar-restart
+

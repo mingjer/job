@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: redis-dev1-s0
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "redis-sentinel-dev1"
+    nfs:
+      path: /k8s/dev1/redis/sentinel/redis0
+      server: 192.170.0.71
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: redis-dev1-s1
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "redis-sentinel-dev1"
+    nfs:
+      path: /k8s/dev1/redis/sentinel/redis1
+      server: 192.170.0.71
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: redis-dev1-s2
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "redis-sentinel-dev1"
+    nfs:
+      path: /k8s/dev1/redis/sentinel/redis2
+      server: 192.170.0.71
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: redis-dev1-s3
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "redis-sentinel-dev1"
+    nfs:
+      path: /k8s/dev1/redis/sentinel/redis3
+      server: 192.170.0.71

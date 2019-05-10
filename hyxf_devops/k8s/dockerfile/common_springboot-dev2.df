@@ -1,0 +1,16 @@
+FROM docker.51xf.cn/jdk/jdk:fonts
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+ARG APP_ENV=k8s-dev1
+ENV APP_ENV="${APP_ENV}"
+
+ARG JAVA_OPTS=""
+ENV JAVA_OPTS="{$JAVA_OPTS}"
+
+WORKDIR /opt/soft/jar
+
+EXPOSE 7070 8080 9191
+
+CMD java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7070 ${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=${APP_ENV} -jar ./51xf_war.jar -Dserver.port=8080 -Dzookeeper.ips=${$IP_ZK} -Dredis.server2.ip=${$IP2}
+
+COPY ./51xf_war.jar ./

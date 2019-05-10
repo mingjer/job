@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-cm
+  namespace: ingress-nginx
+data:
+  ###########kube-public对外映射端口###########
+  3307:  "kube-public/mysql-m-svc:3306"
+
+  ###########k8s-dev1对外映射端口###########
+  ##底层对外映射端口
+  33306: "k8s-dev1/mysql-m-svc:3306"
+  #37017: "k8s-dev1/mongo-svc:27017"
+  #35379: "k8s-dev1/redis-m-svc:6379"
+  #36379: "k8s-dev1/redis-master-svc:6379"
+  #37379: "k8s-dev1/redis-slave-svc:6379"
+  #39876: "k8s-dev1/rocketmq-svc:9876"
+  
+  ##核心对外映射端口
+  #39191: "k8s-dev1/sc-svc:9191"
+  
+  ##网关对外端口
+  38383: "k8s-dev1/mvc-svc:8080"
+
+  ##网关对外端口
+  38484: "k8s-dev1/hy-jiebei-webapp-svc:8080"  
+  
+  ###########dev2对外映射端口###########
+  ##底层对外映射端口
+  43306: "dev2/mysql-m-svc:3306"
+
+
+  ##支付对外映射端口
+  48080: "dev2/convert-svc:8080"
+  48181: "dev2/payment-gateway-svc:8080"
+  
+  ##网关对外映射端口
+  48282: "dev2/mvc-svc:8080"
+  
+  ###########dev3对外映射端口###########
+  ##底层对外映射端口
+  53306: "dev3/mysql-m-svc:3306"
+  #57017: "dev3/mongo-svc:27017"
+  #55379: "dev3/redis-m-svc:6379"
+  #56379: "dev3/redis-master-svc:6379"
+  #57379: "dev3/redis-slave-svc:6379"
+  #59876: "dev3/rocketmq-svc:9876"
+  
+  ##核心对外映射端口
+  #59191: "dev3/sc-svc:9191"
+
+  ###########dev4对外映射端口###########
+  ##底层对外映射端口
+  63306: "dev4/mysql-m-svc:3306"

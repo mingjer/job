@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: apollo-portal-cm
+    namespace: k8s-dev1
+  data:
+    application-ldap.yml: |
+      spring:
+        ldap:
+          base: "dc=51xf,dc=cn"
+          username: "cn=root,dc=51xf,dc=cn"
+          password: "ilanni"
+          searchFilter: "(uid={0})"
+          urls:
+          - "ldap://ldap.51xf.cn:389"
+      
+      ldap:
+        mapping:
+          objectClass: "inetOrgPerson"
+          loginId: "uid"
+          rdnKey: "uid" 
+          userDisplayName: "cn"
+          email: "mail"
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: apollo-portal-dm
+    name: apollo-portal-svc
+    namespace: k8s-dev1
+  spec:
+    type: NodePort
+    ports:
+    - name: portal-port
+      port: 8070
+      targetPort: 8070
+      nodePort: 18070
+    # 如无必要,可以不暴露portal中的admin和config
+    #- name: admin-port
+    #- name: config-port
+    selector:
+      app: apollo-portal-dm
+
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: apollo-portal-dm
+    name: apollo-portal
+    namespace: k8s-dev1
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 5
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+    selector:
+      matchLabels:
+        app: apollo-portal-dm
+    template:
+      metadata:
+        labels:
+          app: apollo-portal-dm
+      spec:
+        containers:
+        - name: apollo-portal
+          image: docker.51xf.cn/k8s/apollo:1.3.0
+          imagePullPolicy: IfNotPresent
+#          volumeMounts:
+#          - mountPath: /apollo-portal/config/
+#            readOnly: true
+#            name: application-ldap
+          ports:
+          - name: portal-port
+            containerPort: 8070
+          # 如无必要,可以不暴露portal中的admin和config
+          #- name: config-port
+          #  containerPort: 8080
+          #- name: admin-port
+          #  containerPort: 8090
+          readinessProbe:
+            initialDelaySeconds: 200
+            periodSeconds: 20
+            exec:
+              command:
+              - healthcheck
+          livenessProbe:
+            initialDelaySeconds: 300
+            periodSeconds: 10
+            exec:
+              command:
+              - healthcheck
+          env:
+          - name: PORTAL_LDAP
+            value: "TRUE"
+          - name: PORTAL_DB
+            value: jdbc:mysql://mysql-m-svc:3306/apolloportaldb?characterEncoding=utf8
+          - name: PORTAL_DB_USER
+            value: "root"
+          - name: PORTAL_DB_PWD
+            value: "123456"
+          - name: DEV_DB
+            value: jdbc:mysql://mysql-m-svc:3306/apolloconfigdb?characterEncoding=utf8
+          - name: DEV_DB_USER
+            value: "root"
+          - name: DEV_DB_PWD
+            value: "123456"
+          # 但如果config服务中启动了admin,则config数据库的ServerConfig表中eureka.service.url的地址应该是config的svc名称与对外的端口
+          # 以本次为例,svc为apollo-svc,端口为8080,portal则只需指定DEV_URL,类似下方.
+          #- name: DEV_URL
+          #  value: http://apollo-svc:8080
+        volumes:
+        - name: application-ldap
+          configMap:
+            name: apollo-portal-cm
+            items:
+              - key: application-ldap.yml
+                path: application-ldap.yml

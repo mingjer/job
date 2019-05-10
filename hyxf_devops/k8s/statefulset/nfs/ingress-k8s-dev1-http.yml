@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: k8s-dev1-ingress-http
+    namespace: k8s-dev1
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+  spec:
+    rules: 
+#    - host: apollo-k8s-dev1.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: apollo-svc
+#            servicePort: 8080
+
+    rules:  
+    - host: portal-k8s-dev1.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: apollo-portal-svc
+            servicePort: 8070
+
+    - host: gateway-k8s-dev1.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: mvc-svc
+            servicePort: 8080

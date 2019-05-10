@@ -1,0 +1,16 @@
+idc-dev-jenkins-72 ansible_host=192.170.0.72
+
+idc-dev-jenkins-110 ansible_host=192.192.0.110
+
+k8s-node-168-0-208 ansible_host=192.168.0.208
+
+
+
+[jenkins-server:vars]
+ansible_ssh_user=root
+ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+
+idc-dev-A-K-71 ansible_host=192.170.0.71
+
+[jenkins-server]
+k8s-node-168-0-208

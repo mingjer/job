@@ -1,0 +1,4 @@
+- hosts: "{{ host }}"
+  remote_user: app
+  roles:
+    - rsync-file

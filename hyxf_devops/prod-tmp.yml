@@ -1,0 +1,11 @@
+- hosts: "{{ host }}"
+  serial: 1
+  remote_user: app
+  vars:
+    run_mode: '{{ run_mode }}'
+  roles:
+    - role: prod-jar-deploy
+      tags: ["deploy"]
+    - role: prod-jar-restart
+      tags: ["restart"]
+

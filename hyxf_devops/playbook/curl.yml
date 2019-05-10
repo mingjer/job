@@ -1,0 +1,27 @@
+---
+- hosts: '{{ host }}'
+  remote_user: root
+  gather_facts: True
+  vars:
+    src_dir: '{{ src_dir }}'
+    filename: '{{ filename }}'
+    curl_port: '{{ curl_port }}'
+    
+  tasks:
+#    - name: sync file
+#      synchronize:
+#        use_ssh_args: yes
+#        src: "{{ src_dir }}" 
+#        dest: /tmp/
+#        rsync_opts:
+#         - "--exclude=.git"
+#         - "--exclude=.idea"
+#         - "--exclude=.gitignore"
+
+    - name: exec shell for file
+      shell: curl http://{{ ansible_default_ipv4.address }}:{{ curl_port }}/smgriskengine/loadStrategy?rule={{ filename }}\&version=3\&file=/tmp/{{ filename }}.ser -s
+
+#    - name: exec shell for flush cache
+#      uri:
+#        url: "http://{{ ansible_default_ipv4.address }}:{{ curl_port }}/smgriskengine/deployStrategy?rule={{ filename }}"
+#        method: GET

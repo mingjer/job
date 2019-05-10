@@ -1,0 +1,17 @@
+FROM docker.51xf.cn/nodejs/nodejs:8.14
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+ARG EGG_SERVER_ENV=k8s-dev1
+ENV EGG_SERVER_ENV="${EGG_SERVER_ENV}"
+
+WORKDIR /opt/soft/nodejs
+
+ADD ./ ./
+
+RUN set -xe \
+&& chmod -R 777 /opt/soft/nodejs \
+&& npm install
+
+CMD EGG_SERVER_ENV=${EGG_SERVER_ENV} npm run k8s-start
+
+EXPOSE 8080

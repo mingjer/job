@@ -1,0 +1,8 @@
+- hosts: {{ host }}
+  roles:
+    - {role: "redis",
+        server_name: "redis",
+        server_port: "6379",
+        slaveof_str: "",
+        MAXMEMORY: 8589934592 
+        }

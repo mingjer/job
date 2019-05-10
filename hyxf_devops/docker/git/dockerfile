@@ -1,0 +1,37 @@
+FROM docker.51xf.cn/jdk/8-jdk-alpine
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+ARG GIT_BRANCH=master
+ENV GIT_BRANCH="${GIT_BRANCH}"
+
+ENV SMG_POLICY="${SMG_POLICY}"
+
+
+RUN set -xe \
+&& apk --update add git openssh curl \
+&& rm -rf /var/lib/apt/lists/* \
+&& rm /var/cache/apk/* \
+&& mkdir -p /root/.ssh/ \
+&& mkdir -p /opt/soft/jar/config/ \
+&& ssh-keyscan gitlab.51xf.cn >> /root/.ssh/known_hosts
+
+COPY ./id_rsa* /root/.ssh/
+
+WORKDIR /tmp/config/
+
+#CMD git clone --depth=1 $GIT_REPO ./ && ping 127.0.0.1
+
+
+###为certfile生成基础镜像
+#RUN git clone git@gitlab.51xf.cn:devops/certfile.git ./
+
+###为刷新zk生成基础镜像
+#RUN git clone git@gitlab.51xf.cn:unicorn/ext/document.git ./
+
+###为smgpolicy生成基础镜像
+CMD git clone git@gitlab.51xf.cn:unicorn/policy/smg-policy.git ./ \
+    && git checkout ${GIT_BRANCH} \
+    && curl http://smgengine-svc:8080/smgriskengine/uploadStrategy -F "file=@/tmp/config/smgPackage/${SMG_POLICY}/${SMG_POLICY}.ser" \
+    && curl http://smgengine-svc:8080/smgriskengine/loadStrategy?rule=${SMG_POLICY}\&version=3\&file=/tmp/${SMG_POLICY}.ser -s \
+    && curl "http://smgengine-svc:8080/smgriskengine/deployStrategy?rule=${SMG_POLICY}" \
+    && ping 127.0.0.1

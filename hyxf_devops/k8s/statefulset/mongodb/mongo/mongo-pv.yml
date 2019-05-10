@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: mongo-dev1-c0
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "mongo-cluster"
+    nfs:
+      path: /k8s/dev1/mongo/cluster/mongo0
+      server: 192.170.0.71
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: mongo-dev1-c1
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: "mongo-cluster"
+    nfs:
+      path: /k8s/dev1/mongo/cluster/mongo1
+      server: 192.170.0.71

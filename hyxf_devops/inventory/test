@@ -1,0 +1,24 @@
+idc-test-168-0-173 ansible_host=192.168.0.173
+
+
+
+
+
+
+
+
+
+
+
+
+
+[idc-test-A]
+idc-test-168-0-173
+
+[idc-test-A:vars]
+ansible_ssh_user=root
+ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+
+
+[databus-server]
+idc-test-168-0-173

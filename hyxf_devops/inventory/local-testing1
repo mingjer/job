@@ -1,0 +1,134 @@
+idc-p2p-test-41 ansible_host=192.192.0.41 ansible_ssh_user=app ansible_ssh_private_key_file=/etc/ansible/key/pro_deploysshkey
+idc-p2p-test-42 ansible_host=192.192.0.42 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-test-43 ansible_host=192.192.0.43 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-test-44 ansible_host=192.192.0.44 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-test-45 ansible_host=192.192.0.45 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-test-46 ansible_host=192.192.0.46 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-test-95 ansible_host=192.190.0.95 ansible_ssh_user=app ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+
+
+[zk-server]
+idc-p2p-test-41 zk_id=1
+idc-p2p-test-42 zk_id=2
+idc-p2p-test-43 zk_id=3
+
+
+[p2p-test-ecs-acc]
+idc-p2p-test-95
+
+[idc-p2p-test]
+idc-p2p-test-41
+idc-p2p-test-42
+idc-p2p-test-43
+idc-p2p-test-44
+idc-p2p-test-45
+idc-p2p-test-46
+
+[mq-server]
+idc-p2p-test-41
+
+[sc-server]
+idc-p2p-test-41
+
+[convert-server]
+idc-p2p-test-41
+
+[dpkeasyflow-server]
+idc-p2p-test-41
+
+[cc-server]
+idc-p2p-test-42
+
+[deploy-server]
+idc-p2p-test-42
+
+[mvc-server]
+idc-p2p-test-42
+
+[nginx-server]
+idc-p2p-test-42
+
+[51fund-server]
+idc-p2p-test-42
+
+[asset-server]
+idc-p2p-test-43
+
+[credit-server]
+idc-p2p-test-43
+
+[flow-server]
+idc-p2p-test-43
+
+[icdm-server]
+idc-p2p-test-43
+
+[market-server]
+idc-p2p-test-43
+
+[platform-server]
+idc-p2p-test-43
+
+[product-server]
+idc-p2p-test-43
+
+[user-server]
+idc-p2p-test-43
+
+[console-server]
+idc-p2p-test-44
+
+[datacenter-server]
+idc-p2p-test-44
+
+[dpkweb-server]
+idc-p2p-test-44
+
+[fdd-server]
+idc-p2p-test-44
+
+[gxp-server]
+idc-p2p-test-44
+
+[riskengine-server]
+idc-p2p-test-44
+
+[batch-server]
+idc-p2p-test-45
+
+[payment-gateway-server]
+idc-p2p-test-45
+
+[payment-transaction-server]
+idc-p2p-test-45
+
+[payment-router-server]
+idc-p2p-test-45
+
+[payment-direct-transaction-server]
+idc-p2p-test-45
+
+[payment-third-transaction-server]
+idc-p2p-test-45
+
+[smgengine-server]
+idc-p2p-test-45
+
+[smgpolicy-server]
+idc-p2p-test-45
+
+
+[mysql-server]
+idc-p2p-test-46
+
+
+#[mongo-server]
+#idc-p2p-test-42 ipAddr=idc-p2p-test-42 
+#idc-p2p-test-43 ipAddr=idc-p2p-test-43
+#idc-p2p-test-44 ipAddr=idc-p2p-test-44
+
+#[redis-server]
+#idc-p2p-test-41 server_name=redisA-master server_port=6379 slaveof_str=""
+#idc-p2p-test-42 server_name=redisB-master server_port=6379 slaveof_str=""
+#idc-p2p-test-43 server_name=redisB-slave server_port=6379 slaveof_str="slaveof idc-p2p-test-42 6379"
+#idc-p2p-test-44 server_name=redisA-slave server_port=6379 slaveof_str="slaveof idc-p2p-test-41 6379"

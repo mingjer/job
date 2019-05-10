@@ -1,0 +1,237 @@
+idc-dev-A-81 ansible_host=192.190.0.81
+idc-dev-A-82 ansible_host=192.190.0.82
+idc-dev-A-83 ansible_host=192.190.0.83
+idc-dev-A-84 ansible_host=192.190.0.84
+idc-dev-A-85 ansible_host=192.190.0.85
+idc-dev-A-86 ansible_host=192.190.0.86
+
+idc-dev-A-K-71 ansible_host=192.170.0.71
+idc-dev-A-K-72 ansible_host=192.170.0.72
+idc-dev-A-K-73 ansible_host=192.170.0.73
+idc-dev-A-K-74 ansible_host=192.170.0.74
+idc-dev-A-K-75 ansible_host=192.170.0.75
+idc-dev-A-K-64 ansible_host=192.192.0.64
+
+idc-dev-A-43 ansible_host=192.180.0.43
+idc-dev-A-K-33 ansible_host=192.180.0.33
+idc-dev-A-42 ansible_host=192.170.0.42
+
+
+
+
+
+
+idc-dev-168-0-126 ansible_host=192.168.0.126
+
+
+
+
+
+
+
+
+
+
+
+
+
+#81有三个zookeep节点
+[zk-server]
+idc-dev-A-81 zk_id=1
+idc-dev-A-82 zk_id=2
+idc-dev-A-83 zk_id=3
+
+[idc-dev-A]
+idc-dev-A-81
+idc-dev-A-82
+idc-dev-A-83
+idc-dev-A-84
+idc-dev-A-85
+idc-dev-A-86
+idc-dev-A-43
+idc-dev-A-42
+idc-dev-A-K-64
+
+idc-dev-A-K-71
+idc-dev-A-K-72
+idc-dev-A-K-73
+idc-dev-A-K-74
+idc-dev-A-K-75
+
+idc-dev-A-K-33
+
+idc-dev-168-0-126
+
+[idc-dev-A:vars]
+ansible_ssh_user=root
+ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+
+
+[databus-server]
+idc-dev-168-0-126
+
+
+[k8s-master-server]
+idc-dev-A-K-71
+
+[oss-server]
+idc-dev-A-83
+
+[paycovert-server]
+idc-dev-A-83
+
+[encryptor-server]
+idc-dev-A-82
+
+[dpkweb-server]
+idc-dev-A-82
+
+[thirdparty-server]
+idc-dev-A-81
+
+[job-executor-server]
+idc-dev-A-83
+
+[job-admin-server]
+idc-dev-A-85
+
+[fdd-server]
+idc-dev-A-83
+
+[mq-server]
+idc-dev-A-81
+
+[sc-server]
+idc-dev-A-81
+
+[mock-server]
+idc-dev-A-81
+
+[jqh-webapp-server]
+idc-dev-A-81
+
+[dpkeasyflow-server]
+idc-dev-A-81
+
+[tomcat-kaka-server]
+idc-dev-A-82
+
+[tomcat-51-server]
+idc-dev-A-82
+
+[tomcat-fenqile-server]
+idc-dev-A-82
+
+[nginx-server]
+idc-dev-A-82
+
+[deploy-server]
+idc-dev-A-82
+
+[filereport-server]
+idc-dev-A-82
+
+[mvc-server]
+idc-dev-A-82
+
+[h5-server]
+idc-dev-A-82
+
+[cc-server]
+idc-dev-A-82
+idc-dev-A-83
+
+[asset-server]
+idc-dev-A-83
+
+[convert-server]
+idc-dev-A-83
+
+[product-server]
+idc-dev-A-83
+
+[flow-server]
+idc-dev-A-83
+
+[user-server]
+idc-dev-A-83
+
+[icdm-server]
+idc-dev-A-83
+
+[market-server]
+idc-dev-A-83
+
+[platform-server]
+idc-dev-A-83
+
+[batch-server]
+idc-dev-A-83
+idc-dev-A-85
+
+[credit-server]
+idc-dev-A-83
+
+[console-server]
+idc-dev-A-84
+
+[gxp-server]
+idc-dev-A-84
+
+[datacenter-server]
+idc-dev-A-84
+
+[risk-server]
+idc-dev-A-84
+
+[riskengine-server]
+idc-dev-A-84
+
+[report-server]
+idc-dev-A-84
+idc-dev-A-85
+
+[smgengine-server]
+idc-dev-A-84
+
+[smgpolicy-server]
+idc-dev-A-84
+
+[acct-server]
+idc-dev-A-85
+
+[chk-server]
+idc-dev-A-85
+
+[configweb-server]
+idc-dev-A-85
+
+[consumer-server]
+idc-dev-A-85
+
+[pub-server]
+idc-dev-A-85
+
+[query-server]
+idc-dev-A-85
+
+[tamcx-server]
+idc-dev-A-85
+
+[trans-server]
+idc-dev-A-85
+
+[mysql-server]
+idc-dev-A-86
+
+#[mongo-server]
+#idc-dev-A-32 ipAddr=idc-dev-A-32 
+#idc-dev-A-84 ipAddr=idc-dev-A-84
+#idc-dev-A-34 ipAddr=idc-dev-A-34
+
+#[redis-server]
+#idc-dev-A-81 server_name=redisA-master server_port=6379 slaveof_str=""
+#idc-dev-A-32 server_name=redisB-master server_port=6379 slaveof_str=""
+#idc-dev-A-33 server_name=redisB-slave server_port=6379 slaveof_str="slaveof idc-dev-A-32 6379"
+#idc-dev-A-34 server_name=redisA-slave server_port=6379 slaveof_str="slaveof idc-dev-A-31 6379"
+

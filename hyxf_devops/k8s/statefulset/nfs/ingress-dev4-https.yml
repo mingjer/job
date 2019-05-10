@@ -1,0 +1,232 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: extensions/v1beta1
+  kind: Ingress
+  metadata:
+    name: dev4-ingress-https
+    namespace: dev4
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/secure-backends: "true"
+  spec:
+    tls:
+    - secretName: tls-secret
+    rules:
+    - host: mq-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: rocketmq-ng-svc
+            servicePort: 9595
+
+    - host: portal-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: apollo-portal-svc
+            servicePort: 8070
+
+    - host: console-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: console-static-svc
+            servicePort: 8080
+
+    - host: nodejs-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: console-nodejs-svc
+            servicePort: 8080
+
+    - host: console-nodejs-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: console-nodejs-svc
+            servicePort: 8080
+
+    - host: convert-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: convert-svc
+            servicePort: 8080
+
+    - host: gateway-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: mvc-svc
+            servicePort: 8080
+
+    - host: job-admin-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: job-admin-svc
+            servicePort: 8080
+
+    - host: payment-gateway-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: payment-gateway-svc
+            servicePort: 8080
+
+
+    - host: payment-admin-dev4.51xf.cn
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: payment-admin-svc
+            servicePort: 8080
+
+#    - host: fenqile-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-fenqile-webapp-svc
+#            servicePort: 8080
+#
+#    - host: fenqile-schedule-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-fenqile-schedule-svc
+#            servicePort: 8080
+#
+#    - host: hy360-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-360-webapp-svc
+#            servicePort: 8080
+#
+#    - host: hy360-schedule-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-360-schedule-svc
+#            servicePort: 8080
+#
+#    - host: hy51-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-51-webapp-svc
+#            servicePort: 8080
+#
+#    - host: baidu-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-baidu-webapp-svc
+#            servicePort: 8080
+#
+#    - host: baidu-schedule-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-baidu-schedule-svc
+#            servicePort: 8080
+#
+#    - host: jd-schedule-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-jd-schedule-svc
+#            servicePort: 8080
+#
+#    - host: jqh-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-jqh-webapp-svc
+#            servicePort: 8080
+#
+#    - host: jqh-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-jqh-webapp-svc
+#            servicePort: 8080
+#
+#    - host: kaka-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-kakaloan-webapp-svc
+#            servicePort: 8080
+#
+#    - host: kaka-schedule-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-kakaloan-schedule-svc
+#            servicePort: 8080
+#
+#    - host: smy-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-smy-webapp-svc
+#            servicePort: 8080
+#
+#    - host: xiaomi-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-xiaomi-webapp-svc
+#            servicePort: 8080
+#
+#    - host: xiaomi-schedule-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-xiaomi-schedule-svc
+#            servicePort: 8080
+#
+#    - host: toutiao-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-toutiao-webapp-svc
+#            servicePort: 8080
+#
+#    - host: didi-webapp-dev4.51xf.cn
+#      http:
+#        paths:
+#        - path: /
+#          backend:
+#            serviceName: hy-didi-webapp-svc
+#            servicePort: 8080

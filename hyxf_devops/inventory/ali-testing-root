@@ -1,0 +1,203 @@
+aliyun-core-test-157   ansible_host=192.168.254.157
+aliyun-core-test-186   ansible_host=192.168.10.186 
+aliyun-core-test-197   ansible_host=192.168.10.197
+aliyun-core-test-187   ansible_host=192.168.10.187
+aliyun-core-test-188   ansible_host=192.168.10.188
+aliyun-core-test-189   ansible_host=192.168.10.189
+aliyun-core-test-190   ansible_host=192.168.10.190
+
+aliyun-core-test-191   ansible_host=192.168.10.191
+aliyun-core-test-192   ansible_host=192.168.10.192
+aliyun-core-test-193   ansible_host=192.168.10.193
+aliyun-core-test-194   ansible_host=192.168.10.194
+aliyun-core-test-195   ansible_host=192.168.10.195
+
+aliyun-core-test-196   ansible_host=192.168.10.196
+aliyun-core-test-198   ansible_host=192.168.10.198
+aliyun-core-test-199   ansible_host=192.168.10.199
+aliyun-core-test-200   ansible_host=192.168.10.200
+aliyun-core-test-201   ansible_host=192.168.10.201
+aliyun-core-test-202   ansible_host=192.168.10.202
+aliyun-core-test-203   ansible_host=192.168.10.203
+aliyun-core-test-250   ansible_host=192.168.20.250
+aliyun-core-test-251   ansible_host=192.168.20.251
+aliyun-core-test-207   ansible_host=192.168.20.207
+aliyun-ecs-acct01      ansible_host=192.168.10.185
+aliyun-ecs-acct02      ansible_host=192.168.10.184
+aliyun-ecs-third       ansible_host=192.168.10.190
+
+[aliyun-channel-sftp]
+aliyun-core-test-207
+
+[aliyun-ecs-acct01]
+192.168.10.185
+[aliyun-ecs-acct02]
+192.168.10.184
+[aliyun-ecs-third]
+192.168.10.190
+
+[aliyun-core-test]
+aliyun-core-test-157
+aliyun-core-test-186
+aliyun-core-test-187
+aliyun-core-test-188
+aliyun-core-test-189
+aliyun-core-test-191
+aliyun-core-test-192
+aliyun-core-test-193
+aliyun-core-test-194
+aliyun-core-test-195
+aliyun-core-test-196
+aliyun-core-test-197
+aliyun-core-test-198
+aliyun-core-test-199
+aliyun-core-test-200
+aliyun-core-test-201
+aliyun-core-test-202
+aliyun-core-test-203
+aliyun-core-test-250
+aliyun-core-test-251
+aliyun-core-test-207
+
+[aliyun-core-test:vars]
+ansible_ssh_user=root
+ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+
+[zk-server]
+aliyun-core-test-198 zk_id=1
+aliyun-core-test-199 zk_id=2
+aliyun-core-test-191 zk_id=3
+
+
+[acm-server]
+aliyun-core-test-157
+
+[dpkeasyflow-server]
+aliyun-core-test-186
+
+[dpkweb-server]
+aliyun-core-test-186
+
+[batch-server]
+aliyun-core-test-187
+
+[cc-server]
+aliyun-core-test-187
+
+[deploy-server]
+aliyun-core-test-187
+
+[jqh-schedule-server]
+aliyun-core-test-188
+
+[asset-server]
+aliyun-core-test-189
+
+[icdm-server]
+aliyun-core-test-189
+
+[gxp-server]
+aliyun-core-test-191
+
+[smgengine-server]
+aliyun-core-test-191
+
+[smgpolicy-server]
+aliyun-core-test-191
+
+
+[convert-server]
+aliyun-core-test-193
+
+#################################
+[gjj-server]
+aliyun-core-test-193
+
+[jqh-server]
+aliyun-core-test-193
+
+[kaka-server]
+aliyun-core-test-193
+######################################
+
+
+[datacenter-server]
+aliyun-core-test-194
+
+[riskengine-server]
+aliyun-core-test-194
+
+[thirdparty-server]
+aliyun-core-test-195
+
+[product-server]
+aliyun-core-test-195
+
+[mvc-server]
+aliyun-core-test-195
+
+[tamc-server]
+aliyun-core-test-197
+
+[app-server]
+aliyun-core-test-197
+
+[nginx-server]
+aliyun-core-test-197
+
+[console-server]
+aliyun-core-test-197
+
+[user-server]
+aliyun-core-test-200
+
+[flow-server]
+aliyun-core-test-200
+
+[market-server]
+aliyun-core-test-201
+
+[platform-server]
+aliyun-core-test-201
+
+[credit-server]
+aliyun-core-test-202
+
+[sc-server]
+aliyun-core-test-202
+
+
+[payment-router-server]
+aliyun-core-test-203
+
+[payment-transaction-server]
+aliyun-core-test-203
+
+[payment-direct-server]
+aliyun-core-test-203
+
+[payment-third-server]
+aliyun-core-test-203
+
+[payment-gateway-server]
+aliyun-core-test-203
+
+#[mysql-server]
+#aliyun-core-test-36
+
+
+[mq-server]
+aliyun-core-test-198
+aliyun-core-test-199
+
+#[mongo-server]
+#aliyun-core-test-191  ipAddr=aliyun-core-test-191
+#aliyun-core-test-250  ipAddr=aliyun-core-test-250
+#aliyun-core-test-251  ipAddr=aliyun-core-test-251
+
+
+#[redis-server]
+#aliyun-core-test-196 server_name=redisA-master server_port=6379 slaveof_str=""
+#aliyun-core-test-192 server_name=redisB-master server_port=6379 slaveof_str=""
+#aliyun-core-test-189 server_name=redisB-slave server_port=6379  slaveof_str="slaveof aliyun-core-test-32 6379"
+#aliyun-core-test-34  server_name=redisA-slave server_port=6379  slaveof_str="slaveof aliyun-core-test-31 6379"

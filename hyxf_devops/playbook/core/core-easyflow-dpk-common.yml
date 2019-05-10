@@ -1,0 +1,69 @@
+#- hosts: local_jenkins
+#  gather_facts: false
+#  vars:
+#    service_name: '{{ service_name }}'
+#    ansible_environment: '{{ ansible_environment }}' 
+#  tasks:
+#    - name: create dir
+#      file:
+#        name: "/opt/app/deplay_{{ ansible_environment }}/packet/"
+#        state: directory
+#        owner: app
+#        group: app
+#        mode: 0755
+#        
+#    - name: copy file
+#      copy:
+#        src: "{{ JENKINS_WORKSPACE }}/hsjry-{{ service_name }}/target/hsjry-{{ service_name }}-2.0.4-SNAPSHOT-bin.zip"
+#        dest: "/opt/app/deplay_{{ ansible_environment }}/packet/"
+#        backup: yes
+#        owner: app
+#        group: app
+#        mode: 0755
+        
+- hosts: '{{ host }}'
+  gather_facts: false
+  vars:
+    service_name: easyflow-dpk
+  tasks:
+    - name: easyflow dir
+      file:
+        path: /opt/soft/easyflow
+        state: directory
+        owner: app
+        group: app
+        
+    - name: easyFlowRun.sh
+      copy:
+        src: packet/easyflow-dpk/easyFlowRun.sh 
+        dest: /opt/soft/easyflow/easyFlowRun.sh
+        owner: app
+        group: app
+        mode: 0755
+        
+    - name: start.sh 
+      copy:
+        src: packet/easyflow-dpk/start.sh
+        dest: /opt/soft/easyflow/start.sh
+        owner: app
+        group: app
+        mode: 0755
+    - name: restart.sh 
+      copy:
+        src: packet/easyflow-dpk/restart.sh
+        dest: /opt/soft/easyflow/restart.sh
+        owner: app
+        group: app
+        mode: 0755
+    - name: zip file
+      copy:
+        src: packet/easyflow-dpk/hsjry-{{ service_name }}-2.0.4-SNAPSHOT-bin.zip
+        dest: /opt/soft/easyflow/hsjry-{{ service_name }}-2.0.4-SNAPSHOT-bin.zip
+        owner: app
+        group: app
+    - name: install
+      shell: sh /opt/soft/easyflow/easyFlowRun.sh install
+      chdir: /opt/soft/easyflow
+    - name: start
+      shell: sh /opt/soft/easyflow/restart.sh 
+      chdir: /opt/soft/easyflow

@@ -1,0 +1,8 @@
+- hosts: "{{ host }}"
+  serial: 1
+  remote_user: app
+  vars:
+    appName: "{{ appName }}"
+    tomcat_port: "{{ tomcat_port }}"
+  tasks:
+    - include_tasks: apptasks.yml

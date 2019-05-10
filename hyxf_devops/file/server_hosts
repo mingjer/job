@@ -1,0 +1,83 @@
+127.0.0.1   localhost
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+10.171.240.41  zk1
+10.252.143.141 zk2
+10.171.243.19  zk3
+10.165.99.1    dubbo-monitor
+10.251.252.11  redis1
+10.171.216.132 redis2
+10.171.250.51  mongodb1
+10.168.23.115  mongodb2
+10.252.89.44   mongodb3
+10.252.129.50  elk1
+10.161.219.104 elk2
+10.168.2.205   nginx2
+10.251.254.159 nginx3
+10.132.84.225  nginx4
+10.132.59.44   nginx5
+10.252.136.146 nodejs1
+10.171.213.120 nodejs2
+10.251.232.37  nodejs3
+10.132.83.212  nodejs4
+10.175.199.142 sso1
+10.252.144.180 sso2
+10.171.233.135 cif1
+10.171.234.189 cif2
+10.171.235.164 cif-front1
+10.252.147.245 cif-front2
+10.171.247.149 clms1
+10.175.199.188 clms2
+10.24.241.236  clms-front1
+10.24.252.55   clms-front2
+10.117.4.84    artemis1
+10.51.16.52    artemis2
+10.165.96.65   account1
+10.51.19.3     account2
+10.51.3.178    ams1
+10.117.6.247   ams2
+10.171.238.100 bi1
+10.117.12.155  kettle1
+10.46.73.121   gfs1
+10.46.73.19    gfs2
+10.47.110.175  esign1
+10.24.36.74    esign2
+10.117.205.48  activiti1
+10.132.60.2    activiti2
+10.132.42.21   udc1
+10.168.44.53   udc2
+10.117.221.97  cmcs1
+10.132.37.179  cmcs2
+10.132.84.233  ams-ofs1
+10.132.84.235  ofs1
+10.26.48.82    ofs2
+10.161.168.59  fs1
+10.51.43.22    fs2
+10.27.90.24    docker1
+10.25.9.157    docker_nexus
+10.28.34.99    business1
+
+10.251.253.74  jenkins
+10.175.196.119 shterm
+10.169.12.248  svn
+
+10.117.196.186 pre0
+10.175.192.189 pre1
+10.252.146.29  pre2
+10.165.98.128  pre3
+10.252.145.45  pre4
+10.175.195.181 pre5
+10.117.201.137 pre6
+10.51.9.239    pre7
+10.51.29.71    pre8
+10.51.29.83    pre9
+10.161.223.202 pre10
+10.28.29.190   pre11
+10.28.34.68    pre12
+
+10.29.187.89   gitlab.qjdchina.com
+10.25.9.157    docker.qjdchina.com
+100.115.174.51 nexus.qjdchina.com
+100.115.145.69 jenkins.qjdchina.com
+
+# Addtion hosts added by puppet

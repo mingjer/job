@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-slave-svc
+  namespace: dev1
+spec:
+  clusterIP: None
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+  selector:
+    app: redis-slave-dm
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis-slave-sfs
+  namespace: dev1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-slave-dm
+  serviceName: redis-slave-svc
+  template:
+    metadata:
+      labels:
+        app: redis-slave-dm
+    spec:
+      containers:
+      - name: redis-slave-pod
+        image: docker.51xf.cn/redis/redis:3.2
+        imagePullPolicy: IfNotPresent
+        command:
+          - "redis-server"
+        args:
+          - "/tmp/redis-slave.conf"
+          - "--protected-mode"
+          - "no"
+        ports:
+        - containerPort: 6379
+          name: slave-port
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/
+          name: redis-config
+          readOnly: false
+        - mountPath: /data/
+          name: storage
+          readOnly: false
+      serviceAccountName: redis-sentinel
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redis-cm
+          items:
+            - key: redis-slave.conf
+              path: redis-slave.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: "redis-sentinel-dev1"
+      resources:
+        requests:
+          storage: 4Gi

@@ -1,0 +1,6 @@
+FROM docker.51xf.cn/nginx/nginx:base
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+WORKDIR /opt/soft/data/console_static
+
+COPY ./static ./static

@@ -1,0 +1,72 @@
+---
+- hosts: '{{ host }}'
+  remote_user: root
+  gather_facts: false
+  vars:
+        jar_file: '{{ jar_file }}'
+        jar_file_name: '{{ jar_file_name }}'
+        md5_jar: '{{ md5_jar }}'
+        app_name: '{{ app_name }}'
+        start_bash: '{{ start_bash }}'
+        stop_bash: '{{ stop_bash }}'
+  tasks:
+#####判断相关的目录是否存在,不存在则创建
+    - name: create directory if don't exist
+      block:
+      - name: "Checking directory"
+        file:
+          path: /opt/soft/jar
+	  state: absent
+            
+#####复制相关的运维脚本
+    - name: "copy shell bash"
+      copy: 
+        src: "{{item}}"
+        dest: /opt/soft/jar/{{ app_name }}
+      with_items:
+        - ["{{ start_bash }}"]
+        - ["{{ stop_bash }}"]
+
+#####不管临时配置文件是否存在，都直接删除
+    - name: delete tmp config file
+      file: "path=/tmp/{{ app_name }}_{{ config_file_name }} state=absent"
+
+#####判断jar文件的md5值,是否相等.相等则继续部署,否则停止部署
+    - name: check md5
+      block:
+      - name: local jar md5
+        debug: msg={{ md5_jar }}
+            
+      - name: sync jar file
+        copy: src={{ jar_file }} dest=/tmp force=yes
+            
+      - name: new jar md5sum
+        shell: "md5sum /tmp/{{ jar_file_name }} |awk '{print $1}'"
+        register: resultt
+            
+      - name: remote jar md5
+        debug: msg={{ resultt.stdout }}
+            
+      - name: Stop building if you don't have the same md5
+        fail: msg="md5 is difference stop build"
+        when: resultt.stdout != "{{ md5_jar }}"
+            
+#####停止原来的服务
+    - name: backup and delete {{ app_name }}
+      block:
+      - name: stop {{ app_name }} service
+        shell: "sh /opt/soft/jar/{{ app_name }}/stop.sh"
+            
+
+#####部署相对应的服务,但是会做相关的判断
+      always:
+        - name: copy new {{ app_name }} jar file
+          shell: 'cp /tmp/{{ jar_file_name }} /opt/soft/jar/{{ app_name }}/'
+          register: result
+            
+        - name: start {{ app_name }} service
+          shell: cd /opt/soft/jar/{{ app_name }} && sh start.sh
+          register: result4
+            
+        - name: start {{ app_name }} app message
+          debug: msg="{{ result4.stdout }}"

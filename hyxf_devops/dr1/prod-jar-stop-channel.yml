@@ -1,0 +1,76 @@
+- hosts: PROD_QIHU_SCHEDULE_FQL_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-360-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7011
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_QIHU_SCHEDULE_FQL_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-fenqile-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7001
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_JD1_FQL1
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-jd-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7040
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_KAKA_SCHEDULE_JQH_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-jqh-schedule 
+     Xmx: 3072
+     envs: prod
+     jar_port: 7051
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_KAKA_SCHEDULE_JQH_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-kakaloan-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7061
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD-TOUTIAO-SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-toutiao-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7091
+  roles:
+    - prod-jar-restart
+
+- hosts: PROD_XIAOMI_SCHEDULE_BAIDU_SCHEDULE
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hy-xiaomi-schedule
+     Xmx: 3072
+     envs: prod
+     jar_port: 7081
+  roles:
+    - prod-jar-restart

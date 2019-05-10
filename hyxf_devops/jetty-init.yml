@@ -1,0 +1,10 @@
+- hosts: all
+  roles:
+        - {
+	    role: jetty_v9_init,
+	    jetty_user_create: false,
+	    jetty_user_login: 'app',
+	    jetty_group_create: false,
+	    jetty_group_name: 'app',
+	    jetty_dst_dir: '/opt/soft/jetty'
+	   }

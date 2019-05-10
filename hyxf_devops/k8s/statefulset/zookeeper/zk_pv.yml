@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: zk-dev1-0
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: zk-storage
+    nfs:
+      path: /k8s/dev1/zk/zk0
+      server: 192.170.0.71
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: zk-dev1-1
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: zk-storage
+    nfs:
+      path: /k8s/dev1/zk/zk1
+      server: 192.170.0.71
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: zk-dev1-2
+  spec:
+    capacity:
+      storage: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: zk-storage
+    nfs:
+      path: /k8s/dev1/zk/zk2
+      server: 192.170.0.71

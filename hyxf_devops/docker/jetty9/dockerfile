@@ -1,0 +1,67 @@
+FROM docker.51xf.cn/centos/centos:7
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+RUN set -xe \
+&& yum -y install net-tools vim wget telnet curl rsync \
+&& yum clean all \
+&& localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8 \
+&& cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+&& echo 'Asia/Shanghai' > /etc/timezone
+
+ENV LANG zh_CN.UTF-8
+ENV LANGUAGE zh_CN:zh
+
+
+
+ADD jdk-8u181-linux-x64.tar.gz /usr/local/
+
+ENV JAVA_HOME /usr/local/jdk1.8.0_181
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV PATH $PATH:$JAVA_HOME/bin
+
+
+
+ENV JETTY_HOME /usr/local/jetty
+ENV JETTY_BASE /opt/soft/jetty
+ENV PATH $JETTY_HOME/bin:$PATH
+
+ADD jetty.tar.gz /usr/local/
+
+RUN set -xe \
+&& groupadd -r jetty \
+&& useradd -r -g jetty jetty \
+&& chown -R jetty:jetty "$JAVA_HOME" \
+&& mkdir -p /opt/soft/logs \
+&& mkdir -p /opt/soft/jar \
+&& chown -R jetty:jetty /opt/soft/logs \
+&& chown -R jetty:jetty /opt/soft/jar \
+&& mv /usr/local/jetty-home* /usr/local/jetty \
+&& mkdir -p "$JETTY_BASE"
+
+
+WORKDIR $JETTY_BASE
+
+RUN set -xe \
+&& chown -R jetty:jetty "$JETTY_HOME" \
+&& java -jar "$JETTY_HOME/start.jar" --create-startd --approve-all-licenses --add-to-start="http,deploy,resources,ext,logging-logback" \
+&& chown -R jetty:jetty "$JETTY_BASE" \
+&& mkdir -p /opt/soft/logs/ \
+&& chown -R jetty:jetty /opt/soft/logs/ \
+&& rm -rf /tmp/hsperfdata_root
+
+ADD logback.xml $JETTY_BASE/resources
+
+ENV TMPDIR /tmp/jetty
+
+RUN set -xe \
+&& mkdir -p "$TMPDIR" \
+&& chown -R jetty:jetty "$TMPDIR" \
+&& chown -R jetty:jetty "$JETTY_BASE" \ 
+&& chown -R jetty:jetty "$JETTY_HOME"
+
+COPY docker-entrypoint.sh generate-jetty-start.sh /
+
+USER jetty
+EXPOSE 8080
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["java","-jar","/usr/local/jetty/start.jar"]

@@ -1,0 +1,35 @@
+---
+- hosts: '{{ host }}'
+  remote_user: admin
+  gather_facts: false
+  vars:
+        jar_file: '{{ jar_file }}'
+        jar_file_name: '{{ jar_file_name }}'
+        md5_jar: '{{ md5_jar }}'
+        config_file: '{{ config_file }}'
+        config_file_name: '{{ config_file_name }}'
+        app_name: '{{ app_name }}'
+        start_bash: '{{ start_bash }}'
+        stop_bash: '{{ stop_bash }}'
+
+  tasks:
+#####判断相关的目录是否存在,不存在则创建
+    - name: "check directory"
+      block:
+      - name: "check directory 2"
+        stat:
+          path: "{{item}}"
+        with_items:
+          - ["/data/server/{{ app_name }}"]
+        register: folder_stats
+
+      - name: "send email"
+        email:
+          host: smtp.exmail.qq.com
+          port: 465
+          username: yuands@htrader.cn
+          password: Hello123
+          to: yuands@htrader.cn
+          subject: test
+          body: first
+        when: folder_stats.stat.exists == false

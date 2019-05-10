@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configuration
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+data:
+  #配置项可以参考https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/configmap.md
+  proxy-connect-timeout: "100"
+  proxy-read-timeout: "600"
+  proxy-send-timeout: "600"
+  proxy-buffer-size: "16k"
+  proxy-body-size: "10m"
+  client-header-buffer-size: "2046k"
+  large-client-header-buffers: "4 16k"

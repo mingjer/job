@@ -1,0 +1,12 @@
+[pro-crq:children]
+PVSLCRQAPP01
+PVSLCRQAPP02
+
+[PVSLCRQAPP01]
+58.59.21.24
+[PVSLCRQAPP02]
+58.59.21.25
+
+[pro-crq:vars]
+ansible_ssh_user=app
+ansible_ssh_private_key_file=/home/app/.ssh/dr1_app_id_rsa

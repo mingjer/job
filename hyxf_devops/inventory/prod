@@ -1,0 +1,14 @@
+aliyun-core-uat-A-1-101 ansible_host=10.0.1.101 ansible_ssh_user=app ansible_ssh_private_key_file=/etc/ansible/key/pro_deploysshkey
+aliyun-core-uat-A-2-85 ansible_host=10.0.2.85 ansible_ssh_user=app ansible_ssh_private_key_file=/etc/ansible/key/pro_deploysshkey
+aliyun-core-uat-A-5-23 ansible_host=10.0.5.23 ansible_ssh_user=app ansible_ssh_private_key_file=/home/app/.ssh/UAT_NEW_APP_id_rsa
+aliyun-core-prod-A-5-40 ansible_host=10.0.5.40 ansible_ssh_user=app ansible_ssh_private_key_file=/home/app/.ssh/UAT_NEW_APP_id_rsa
+aliyun-core-prod-A-6-197 ansible_host=10.0.6.197 ansible_ssh_user=app ansible_ssh_private_key_file=/home/app/.ssh/UAT_NEW_APP_id_rsa
+
+[thirdparty-server]
+aliyun-core-uat-A-1-101
+aliyun-core-uat-A-2-85
+aliyun-core-uat-A-5-23
+
+[prod-smgpolicy-server]
+aliyun-core-prod-A-5-40
+aliyun-core-prod-A-6-197

@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-s-svc
+  namespace: dev1
+spec:
+  clusterIP: None
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+  selector:
+    app: redis-s-dm
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: redis-s
+  namespace: dev1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-s-dm
+  serviceName: redis-s-svc
+  template:
+    metadata:
+      labels:
+        app: redis-s-dm
+    spec:
+      containers:
+      - name: redis-s-pod
+        image: docker.51xf.cn/redis/redis:3.2
+        imagePullPolicy: IfNotPresent
+        command:
+          - "redis-server"
+        args:
+          - "/tmp/redis-slave.conf"
+          - "--protected-mode"
+          - "no"
+        ports:
+        - containerPort: 6379
+          name: slave-port
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/
+          name: redis-cf
+          readOnly: false
+        - mountPath: /data/
+          name: storage
+          readOnly: false
+      serviceAccountName: redis-cluster
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: redis-cf
+        configMap:
+          name: redis-cfm
+          items:
+            - key: redis-slave.conf
+              path: redis-slave.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: "redis-cluster"
+      resources:
+        requests:
+          storage: 4Gi

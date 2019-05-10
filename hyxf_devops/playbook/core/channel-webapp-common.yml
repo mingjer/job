@@ -1,0 +1,106 @@
+---
+- hosts: '{{ host }}'
+#  become: yes
+#  become_user: app
+  gather_facts: false
+  vars:
+        jar_file: '{{ jar_file }}'
+        jar_name: '{{ jar_name }}'
+        jar_file_name: '{{ jar_name }}'
+        jar_port: '{{ jar_port }}'
+        start_bash: '{{ start_bash }}'
+        stop_bash: '{{ stop_bash }}'
+        app_user: app
+   
+  tasks:
+#####判断相关的目录是否存在,不存在则创建
+    - name: create directory if don't exist
+      block:
+      - name: "Checking directory"
+        stat:
+          path: "{{item}}"
+        with_items:
+          - ["/opt/soft/"]
+          - ["/opt/soft/oom"]
+          - ["/opt/soft/jar/{{ jar_name }}"]
+        register: folder_stats
+            
+      - name: "creat multiple directory"
+        file:
+          path: "{{item.item}}"
+          state: directory
+          mode: 0755
+          group: "{{ app_user }}"
+          owner: "{{ app_user }}"
+        with_items:
+         - "{{folder_stats.results}}"
+        when: item.stat.exists == false
+        
+#####删除原来的相关文件
+    - name: delete old data and clean cache
+      file:
+        path: "{{ item[0] }}"
+        state: "{{ item[1] }}"
+        mode: 0755
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+      with_nested:
+        - [ "/opt/soft/jar/{{ jar_name }}" ]
+        - [ "absent", "directory" ]
+      ignore_errors: yes
+
+#####删除临时文件
+    - name: delete tmp file
+      shell: rm -fr *.jar
+      args:
+        chdir: /tmp/
+
+#####复制相关的运维脚本
+    - name: "copy shell scripts"
+      copy: 
+        src: "{{ item }}"
+        dest: /opt/soft/jar/{{ jar_name }}
+        mode: 0755
+        group: "{{ app_user }}"
+        owner: "{{ app_user }}"
+      with_items:
+        - ["{{ start_bash }}"]
+        - ["{{ stop_bash }}"]
+
+#####复制jar包到远程服务器上
+    - name: copy jar file
+      copy: 
+        src: "{{ jar_file }}"
+        dest: /tmp/
+        group: "{{ app_user }}"
+        owner: "{{ app_user }}"
+        force: yes
+            
+#####停止原来的服务
+    - name: stop {{ jar_name }} service
+      shell: "sh /opt/soft/jar/{{ jar_name }}/stop.sh"
+      
+#####复制jar包到对应的目录上
+    - name: copy new {{ jar_name }} jar file
+      shell: 'cp /tmp/{{ jar_name }}.jar /opt/soft/jar/{{ jar_name }}/'
+
+#####改变目录用户属性
+    - name: change user directory
+      file:
+        path: /opt/soft/jar/{{ jar_name }}/
+        state: directory
+        mode: 0755
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        recurse: yes
+
+#####启动服务
+    - name: start {{ jar_name }} service
+      shell: sh /opt/soft/jar/{{ jar_name }}/start.sh
+      
+      
+    - name: wait start
+      wait_for: "port={{ jar_port }} delay=10"
+
+    - name: wait 30s
+      pause: seconds=30      

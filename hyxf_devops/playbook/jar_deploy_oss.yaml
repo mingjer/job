@@ -1,0 +1,110 @@
+---
+- hosts: '{{ host }}'
+  remote_user: root
+  gather_facts: false
+  vars:
+    jar_file_name: '{{ jar_file_name }}'
+    md5_jar: '{{ md5_jar }}'
+    config_file_name: '{{ config_file_name }}'
+    app_name: '{{ app_name }}'
+    start_bash_name: '{{ start_bash_name }}'
+    stop_bash_name: '{{ stop_bash_name }}'
+    pro_env: '{{ pro_env }}'
+
+  tasks:
+#####判断相关的目录是否存在,不存在则创建
+    - name: create directory if don't exist
+      block:
+      - name: "Checking directory"
+        stat:
+          path: "{{item}}"
+        with_items:
+          - ["/data/backup"]
+          - ["/data/oom"]
+          - ["/data/server/{{ app_name }}"]
+          - ["/tmp/{{ app_name }}_{{ pro_env }}"]
+        register: folder_stats
+
+      - name: "creat multiple directory"
+        file:
+          path: "{{item.item}}"
+          state: directory
+          mode: 0755
+          group: root
+          owner: root
+        with_items:
+          - "{{folder_stats.results}}"
+        when: item.stat.exists == false
+
+#####不管临时文件是否存在，都直接删除
+    - name: delete tmp file
+      file: 
+        path：/tmp/{{ app_name }}_{{ pro_env }}/{{item}}
+        state：absent
+      with_items:
+        - ["{{ jar_file_name }}"]
+        - ["{{ config_file_name }}"]
+        - ["{{ start_bash_name }}"]
+        - ["{{ stop_bash_name }}"]
+      ignore_errors: yes
+
+#####下载相关的文件
+    - name: "download file"
+      get_url: 
+        url: "https://img.jmk24.com/{{ pro_env }}/{{item}}"
+        dest: /tmp/{{ app_name }}_{{ pro_env }}/
+        mode: 0755
+        group: root
+        owner: root
+      with_items:
+        - ["{{ jar_file_name }}"]
+        - ["{{ config_file_name }}"]
+        - ["{{ start_bash_name }}"]
+        - ["{{ stop_bash_name }}"]
+
+#####判断jar文件的md5值,是否相等.相等则继续部署,否则停止部署
+    - name: check md5
+      block:
+      - name: local jarfile md5
+        debug: msg={{ md5_jar }}
+
+      - name: get new jarfile md5sum
+        shell: "md5sum /tmp/{{ app_name }}_{{ pro_env }}/{{ jar_file_name }} |awk '{print $1}'"
+        register: resultt
+
+      - name: remote jarfile md5
+        debug: msg={{ resultt.stdout }}
+
+      - name: Stop building if you don't have the same md5
+        fail: msg="md5 is difference stop build"
+        when: resultt.stdout != "{{ md5_jar }}"
+
+####停止原来的服务,备份对应的目录,然后删除对应的日志文件
+    - name: backup and delete {{ app_name }}
+      block:
+      - name: stop {{ app_name }} service
+        shell: "sh /data/server/{{ app_name }}/{{ stop_bash_name }}"
+        ignore_errors: yes
+
+##      - name: backup old {{ app_name }} directory
+##        shell: 'cp -a /data/server/{{ app_name }}/ /data/backup/{{ app_name }}_`date +"%Y%m%d_%H%M%S"`'
+##            
+##      - name: tar backup old {{ app_name }} directory
+##        shell: 'tar -zcvf /data/backup/{{ app_name }}_`date +"%Y%m%d_%H%M%S"`.tar.gz -C /data/server/ {{ app_name }}'
+
+#####部署相对应的服务,但是会做相关的判断
+      always:
+        - name: copy new start & stop scripts
+          shell: 'cp /tmp/{{ app_name }}_{{ pro_env }}/{{item}} /data/server/{{ app_name }}/'
+          with_items:
+            - ["{{ jar_file_name }}"]
+            - ["{{ config_file_name }}"]
+            - ["{{ start_bash_name }}"]
+            - ["{{ stop_bash_name }}"]
+
+        - name: start {{ app_name }} service
+          shell: cd /data/server/{{ app_name }} && sh /data/server/{{ app_name }}/{{ start_bash_name }}
+          register: result4
+
+        - name: start {{ app_name }} app message
+          debug: msg="{{ result4.stdout }}"

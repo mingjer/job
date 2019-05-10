@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: superdiamond-svc
+  namespace: kube-public
+spec:
+  type: NodePort
+  ports:
+  - name: http-pub-port
+    port: 8080
+    targetPort: 8080
+  - name: http-private-port
+    port: 9191
+    targetPort: 9191
+  selector:
+    app: superdiamond-dm
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: superdiamond-deploy
+  namespace: kube-public
+spec:
+  selector:
+    matchLabels:
+      app: superdiamond-dm
+  replicas: 1
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: superdiamond-dm
+    spec:
+      terminationGracePeriodSeconds: 60
+      restartPolicy: Always
+      containers:
+      - name: superdiamond-pod
+        image: docker.51xf.cn/51xf/superdiamond
+        imagePullPolicy: Always

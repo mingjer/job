@@ -1,0 +1,230 @@
+- hosts: DR1_Asset* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-asset-deploy
+     Xmx: 1535
+     envs: dr1
+     jar_port: 9004
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1-CC-group 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-cc-springboot
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9113
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_GXP2_TAMC_FineReport2 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: console
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9015
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_convert*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-convert-deploy
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9130 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Credit* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-credit-springboot
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9106
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Risk*_DataCenter* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxfy-datacenter-deploy
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9024 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Batch_Deploy 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxfy-deploy-deploy
+     Xmx: 1024
+     envs: dr1
+     jar_port: 9012 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_*_EasyFlow* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: easyflow-dpk
+     Xmx: 1024
+     envs: dr1
+     jar_port: 7999
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Fdd* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxfFdd
+     Xmx: 1536
+     envs: dr1
+     jar_port: 8080 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_*_jettyFlow*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-flow-deploy
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9110
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Icdm* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-icdm-deploy
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9008 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Batch_Deploy
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-job-admin
+     Xmx: 1024
+     envs: dr1
+     jar_port: 9011 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Batch_Deploy
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-loan-job-executor
+     Xmx: 1024
+     envs: dr1
+     jar_port: 9138 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_CORE_*_Market*_* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-market-springboot
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9027
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_*_MVC* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: loan-web-mvc
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9060 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_CORE_Platform* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-platform-deploy
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9026 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_*_Product* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-product-springboot
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9103 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Risk* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-riskengine-deploy
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9025
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1-CORE-smgpolicy*
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hyxfy-smgengine
+     Xmx: 1024
+     envs: dr1
+     jar_port: 9026 
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_CORE_thirdparty* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: thirdparty
+     Xmx: 1536
+     envs: dr1
+     jar_port: 8070
+  roles:
+    - prod-jar-restart
+
+- hosts: DR1_Asset*_User* 
+  gather_facts: no
+  remote_user: app
+  vars:
+     jar_name: hsjry-user-springboot
+     Xmx: 1536
+     envs: dr1
+     jar_port: 9102
+  roles:
+    - prod-jar-restart

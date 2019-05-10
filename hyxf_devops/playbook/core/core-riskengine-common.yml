@@ -1,0 +1,93 @@
+#- hosts: local_jenkins
+#  gather_facts: false
+#  vars:
+#    service_name: '{{ service_name }}'
+#    ansible_environment: '{{ ansible_environment }}'
+#  tasks:
+#    - name: create dir
+#      file:
+#        name: "/opt/app/deplay_{{ ansible_environment }}/packet/"
+#        state: directory
+#        owner: app
+#        group: app
+#        mode: 0755
+#        
+#    - name: copy file
+#      copy:
+#        src: "{{ JENKINS_WORKSPACE }}/hsjry-{{ service_name }}-deploy/target/hsjry-{{ service_name }}-deploy.war"
+#        dest: "/opt/app/deplay_{{ ansible_environment }}/packet/"
+#        backup: yes
+#        owner: app
+#        group: app
+#        mode: 0755
+        
+- hosts: '{{ host }}'
+  gather_facts: false
+  vars:
+    service_name: '{{ service_name }}'
+    jetty_name: jettyRISK
+    jetty_port: 9025
+    
+  tasks:
+####停止原来的服务
+    - name: stop {{ jetty_name }}
+      block:
+      - name: stop {{ jetty_name }} service
+        systemd: 
+          name: "{{ jetty_name }}"
+          state: stopped
+        ignore_errors: yes
+
+      - name: check if or not {{ jetty_name }} is still running
+        shell: ps -ef | grep {{ jetty_name }} | grep java | grep -v grep | wc -l
+        register: app_status
+
+      - debug: msg= "{{ app_status }}"
+
+      - name: force kill pid
+        shell: ps -ef | grep {{ jetty_name }} | grep java | grep -v grep | awk '{print $2}' |xargs kill -9
+        when: app_status.stdout|int > 0
+        ignore_errors: yes
+
+####删除缓存
+    - name: delete old data and clean cache
+      file:
+        path: "{{ item[0] }}" 
+        state: "{{ item[1] }}"
+        mode: 0755
+        group: app
+        owner: app
+      with_nested:
+        - [ "/opt/soft/jetty/{{ jetty_name }}/work/", "/opt/soft/jetty/{{ jetty_name }}/tmp/","/opt/soft/jetty/{{ jetty_name }}/webapps/" ]
+        - [ "absent", "directory" ]
+      ignore_errors: yes
+      
+####复制war包和相关文件到远程主机上
+    - name: copy file
+      copy:
+        src: "{{ JENKINS_WORKSPACE }}/hsjry-{{ service_name }}-deploy/target/hsjry-{{ service_name }}-deploy.war"
+        dest: "/opt/soft/jetty/{{ jetty_name }}/webapps/"
+        owner: app
+        group: app
+        mode: 0755
+        
+    - name: copy other file
+      copy:
+        src: "{{ JENKINS_WORKSPACE }}/gxp/globalvar.properties"
+        dest: "/opt/soft/jetty/{{ jetty_name }}/"
+        force: yes
+        owner: app
+        group: app
+        
+####启动服务
+    - name: start {{ jetty_name }}
+      systemd: 
+        name: "{{ jetty_name }}"
+        state: started
+      ignore_errors: yes
+      
+    - name: wait start
+      wait_for: "port={{ jetty_port }} delay=10"
+
+    - name: wait 30s
+      pause: seconds=30

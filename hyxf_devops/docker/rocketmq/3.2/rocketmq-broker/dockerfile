@@ -1,0 +1,7 @@
+FROM docker.51xf.cn/rocketmq/rocketmq-base:3.2
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+CMD cd ${ROCKETMQ_HOME}/bin \
+&& sh mqbroker -c ../conf/rocketmq_broker.conf > ../logs/mqbroker.log 
+
+EXPOSE 10911 10912

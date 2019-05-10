@@ -1,0 +1,210 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: zk-k8s-dev1-0
+  spec:
+    capacity:
+      storage: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: zk-k8s-dev1
+    nfs:
+      path: /k8s/k8s-dev1/zk/zk0
+      server: 192.192.0.79
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: zk-k8s-dev1-1
+  spec:
+    capacity:
+      storage: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: zk-k8s-dev1
+    nfs:
+      path: /k8s/k8s-dev1/zk/zk1
+      server: 192.192.0.79
+
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: zk-k8s-dev1-2
+  spec:
+    capacity:
+      storage: 1Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Recycle
+    storageClassName: zk-k8s-dev1
+    nfs:
+      path: /k8s/k8s-dev1/zk/zk2
+      server: 192.192.0.79
+      
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: zk-svc
+    namespace: k8s-dev1
+    labels:
+      app: zk-svc
+  spec:
+    ports:
+    - port: 2888
+      name: server
+    - port: 3888
+      name: leader-election
+    clusterIP: None
+    selector:
+      app: zk
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: zk-cm
+    namespace: k8s-dev1
+  data:
+    jvm.heap: "1G"
+    tick: "4000"
+    init: "20"
+    sync: "10"
+    client.cnxns: "60"
+    snap.retain: "3"
+    purge.interval: "0"
+
+- apiVersion: policy/v1beta1
+  kind: PodDisruptionBudget
+  metadata:
+    name: zk-pdb
+    namespace: k8s-dev1
+  spec:
+    selector:
+      matchLabels:
+        app: zk
+    minAvailable: 2
+
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    name: zk
+    namespace: k8s-dev1
+  spec:
+    serviceName: zk-svc
+    replicas: 3
+    template:
+      metadata:
+        labels:
+          app: zk
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values: 
+                      - zk
+                topologyKey: "kubernetes.io/hostname"
+        containers:
+        - name: k8szk
+          imagePullPolicy: Always
+          image: docker.51xf.cn/k8s/k8szk:v3
+          resources:
+            requests:
+              memory: "3Gi"
+              cpu: "500m"
+            limits:
+              memory: "3Gi"
+              cpu: "500m"
+          ports:
+          - containerPort: 2181
+            name: client
+          - containerPort: 2888
+            name: server
+          - containerPort: 3888
+            name: leader-election
+          env:
+          - name : ZK_REPLICAS
+            value: "3"
+          - name : ZK_HEAP_SIZE
+            valueFrom:
+              configMapKeyRef:
+                name: zk-cm
+                key: jvm.heap
+          - name : ZK_TICK_TIME
+            valueFrom:
+              configMapKeyRef:
+                name: zk-cm
+                key: tick
+          - name : ZK_INIT_LIMIT
+            valueFrom:
+              configMapKeyRef:
+                name: zk-cm
+                key: init
+          - name : ZK_SYNC_LIMIT
+            valueFrom:
+              configMapKeyRef:
+                name: zk-cm
+                key: tick
+          - name : ZK_MAX_CLIENT_CNXNS
+            valueFrom:
+              configMapKeyRef:
+                name: zk-cm
+                key: client.cnxns
+          - name: ZK_SNAP_RETAIN_COUNT
+            valueFrom:
+              configMapKeyRef:
+                name: zk-cm
+                key: snap.retain
+          - name: ZK_PURGE_INTERVAL
+            valueFrom:
+              configMapKeyRef:
+                name: zk-cm
+                key: purge.interval
+          - name: ZK_CLIENT_PORT
+            value: "2181"
+          - name: ZK_SERVER_PORT
+            value: "2888"
+          - name: ZK_ELECTION_PORT
+            value: "3888"
+          command:
+          - sh
+          - -c
+          - zkGenConfig.sh && zkServer.sh start-foreground
+          readinessProbe:
+            exec:
+              command:
+              - "zkOk.sh"
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+              - "zkOk.sh"
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+          - name: datadir
+            mountPath: /var/lib/zookeeper
+          - name: host-time
+            mountPath: /etc/localtime
+        volumes:
+        - name: host-time
+          hostPath:
+            path: /etc/localtime
+    volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: zk-k8s-dev1
+        resources:
+          requests:
+            storage: 1Gi

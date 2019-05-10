@@ -1,0 +1,32 @@
+- name: nginx config file
+  gather_facts: false
+  hosts: '{{ host }}'
+  remote_user: root
+  vars:
+    src_dir: '{{ src_dir }}'
+
+  tasks:
+   - name: sync nginx file
+     synchronize: 
+       use_ssh_args: yes
+       src: "{{ src_dir }}"
+       dest: /etc/nginx/conf.d
+       rsync_opts:
+         - "--exclude=.git"
+         - "--exclude=.idea"
+         - "--exclude=.gitignore"
+         
+   - shell: "nginx -t"
+     register: result
+     ignore_errors: yes
+     
+   - name: error message
+     debug: msg="{{result.stderr_lines}}"
+     
+   - shell: "nginx -t"
+     notify:
+      - "reload Nginx"
+      
+  handlers:
+   - name: "reload Nginx"
+     shell: "pkill nginx;nginx"

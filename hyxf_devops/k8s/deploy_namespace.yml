@@ -1,0 +1,19 @@
+- hosts: '{{ host }}'
+  gather_facts: false
+  vars:
+    ansible_environment: '{{ ansible_environment }}'
+    namespace_yml: '{{ namespace_yml }}'
+    
+  tasks:
+#####复制yml文件到远程服务器上上
+    - name: copy file
+      copy: 
+        src: "{{ namespace_yml }}"
+        dest: /tmp/
+        backup: yes
+        force: yes
+      
+    - name: Create a kubernetes namespace
+      shell: kubectl apply -f namespace_{{ansible_environment}}.yml --record
+      args:
+        chdir: /tmp/

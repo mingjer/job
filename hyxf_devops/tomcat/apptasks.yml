@@ -1,0 +1,49 @@
+- name: copy file
+  copy:
+    src: "{{src_dir}}" 
+    dest: "/opt/soft/tomcat/tomcat{{ appName }}/webapps/"
+    owner: app
+    group: app
+    mode: 0640
+- name: stop tomcat
+  shell: sudo systemctl stop tomcat{{ appName }}
+  ignore_errors: True
+
+- name: wait 2s
+  pause: seconds=2
+
+- name: 判断程序进程号是否存在
+  shell: ps aux | grep tomcat{{ appName }} | grep -v grep | awk '{print $2}'| wc -l
+  register: result
+
+- name: 判断systemctl stop是否成功
+  debug:
+    msg: systemctl stop 可以正常停服务
+  when: result.stdout == "0"
+
+- name: 判断systemctl stop是否成功
+  debug:
+    msg: systemctl stop 无法正常停服务
+  when: result.stdout != "0"
+
+- name: shutdown tomcat
+  shell: ps aux | grep tomcat{{ appName }} | grep -v grep | awk '{print $2}'| xargs kill -9
+  ignore_errors: True
+- name: wait 15s
+  pause: seconds=15
+- name: work tmp file
+  file:
+    path: "/opt/soft/tomcat/tomcat{{ appName }}/work/Catalina/localhost" 
+    state: absent
+- name: dir absent
+  shell: "rm -rf .ansible_*"
+  args:
+    chdir: "/opt/soft/tomcat/tomcat{{ appName }}/webapps/"
+    warn: no
+- name: start tomcat
+  shell: sudo systemctl start tomcat{{ appName }}
+  ignore_errors: True
+- name: wait start
+  wait_for: "port={{ tomcat_port }} delay=10"
+- name: wait 10s
+  pause: seconds=10

@@ -1,0 +1,230 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    helm.sh/namespace: default
+    helm.sh/path: mongo
+    helm.sh/release: infra-mongo
+  creationTimestamp: 2018-05-21T04:40:31Z
+  labels:
+    controller.caicloud.io/chart: mongo
+    controller.caicloud.io/release: infra-mongo
+    service.caicloud.io/export: "true"
+  name: mgo-cluster
+  namespace: default
+  ownerReferences:
+  - apiVersion: release.caicloud.io/v1alpha1
+    kind: Release
+    name: infra-mongo
+    uid: 10519cea-5cb1-11e8-8fec-5254000a3441
+  resourceVersion: "5456"
+  selfLink: /api/v1/namespaces/default/services/mgo-cluster
+  uid: 17ff6d28-5cb1-11e8-94c2-52540017abeb
+spec:
+  clusterIP: None
+  ports:
+  - name: tcp-27017
+    port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    controller.caicloud.io/name: infra-mongo-mongo-v1-0
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    helm.sh/namespace: default
+    helm.sh/path: mongo
+    helm.sh/release: infra-mongo
+  creationTimestamp: 2018-05-24T07:24:17Z
+  generation: 51
+  labels:
+    controller.caicloud.io/chart: mongo
+    controller.caicloud.io/release: infra-mongo
+  name: infra-mongo-mongo-v1-0
+  namespace: default
+  ownerReferences:
+  - apiVersion: release.caicloud.io/v1alpha1
+    kind: Release
+    name: infra-mongo
+    uid: 10519cea-5cb1-11e8-8fec-5254000a3441
+  resourceVersion: "1148816"
+  selfLink: /apis/apps/v1/namespaces/default/statefulsets/infra-mongo-mongo-v1-0
+  uid: 77ed3109-5f23-11e8-a120-525400d74dbf
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      controller.caicloud.io/chart: mongo
+      controller.caicloud.io/name: infra-mongo-mongo-v1-0
+      controller.caicloud.io/release: infra-mongo
+  serviceName: mgo-cluster
+  template:
+    metadata:
+      annotations:
+        helm.sh/namespace: default
+        helm.sh/path: mongo
+        helm.sh/release: infra-mongo
+      creationTimestamp: null
+      labels:
+        controller.caicloud.io/chart: mongo
+        controller.caicloud.io/name: infra-mongo-mongo-v1-0
+        controller.caicloud.io/release: infra-mongo
+    spec:
+      containers:
+      - args:
+        - mongod
+        - --replSet
+        - rs0
+        - --bind_ip
+        - 0.0.0.0
+        - --smallfiles
+        - --noprealloc
+        - --clusterAuthMode
+        - keyFile
+        - --keyFile
+        - /data/config/mongodb-keyfile
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: admin
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: Pwd123456
+        image: mongo:3.6.4
+        imagePullPolicy: Always
+        name: mongo
+        ports:
+        - containerPort: 27017
+          name: tcp-27017
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /docker-entrypoint-initdb.d
+          name: init-js
+      - env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: MONGODB_USERNAME
+          value: admin
+        - name: MONGODB_PASSWORD
+          value: Pwd123456
+        - name: MONGODB_DATABASE
+          value: admin
+        - name: MONGO_SIDECAR_POD_LABELS
+          value: controller.caicloud.io/release=infra-mongo
+        - name: MONGO_PORT
+          value: "27017"
+        - name: KUBERNETES_MONGO_SERVICE_NAME
+          value: mgo-cluster
+        image: mongo-k8s-sidecar
+        imagePullPolicy: Always
+        name: mongo-sidecar
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /data/db
+          type: ""
+        name: mongo-storage
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: init.js
+            path: init.js
+          name: init-js
+        name: init-js
+      - name: mongo-key
+        secret:
+          defaultMode: 384
+          secretName: mongo-key
+  updateStrategy:
+    type: RollingUpdate
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    helm.sh/namespace: default
+    helm.sh/path: mongo
+    helm.sh/release: infra-mongo
+  creationTimestamp: 2018-05-23T10:19:46Z
+  labels:
+    controller.caicloud.io/chart: mongo
+    controller.caicloud.io/release: infra-mongo
+  name: init-js
+  namespace: default
+  ownerReferences:
+  - apiVersion: release.caicloud.io/v1alpha1
+    kind: Release
+    name: infra-mongo
+    uid: 10519cea-5cb1-11e8-8fec-5254000a3441
+  resourceVersion: "471813"
+  selfLink: /api/v1/namespaces/default/configmaps/init-js
+  uid: d13a6454-5e72-11e8-94c2-52540017abeb
+data:
+  init.js: |
+    var mgo = new Mongo('127.0.0.1:27017');
+    var users = ["cyclone", "devops-admin", "cargo-admin"];
+
+    for (i=0; i < users.length; i++) {
+        user = users[i];
+        db = mgo.getDB(user);
+        u = db.getUser(user);
+        print(pwd)
+        if (u === null) {
+            print("user is not found, add this user");
+            db.createUser({'user': user, 'pwd': user, roles: [ { role: "dbOwner", db: user } ]});
+        } else {
+            print("user is found");
+        }
+    }

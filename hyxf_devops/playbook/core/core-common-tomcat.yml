@@ -1,0 +1,89 @@
+#- hosts: local_jenkins
+#  gather_facts: false
+#  vars:
+#    service_name: "{{ service_name }}"
+#    ansible_environment: "{{ ansible_environment }}"
+#    app_user: app
+#    
+#  tasks:
+#    - name: create dir
+#      file:
+#        name: "/opt/app/deplay_{{ ansible_environment }}/packet/"
+#        state: directory
+#        owner: "{{ app_user }}"
+#        group: "{{ app_user }}"
+#        mode: 0755
+#        
+#    - name: copy file
+#      copy:
+#        src: "{{ JENKINS_WORKSPACE }}/signature/target/hyxfFdd.war"
+#        dest: "/opt/app/deplay_{{ ansible_environment }}/packet/"
+#        backup: yes
+#        owner: "{{ app_user }}"
+#        group: "{{ app_user }}"
+#        mode: 0755
+        
+- hosts: '{{ host }}'
+  gather_facts: false
+#  become: yes
+#  become_user: app
+  vars:
+    app_user: app
+    jetty_name: "{{ jetty_name }}"
+    jetty_port: "{{ jetty_port }}"
+    app_file: "{{ app_file }}"
+  tasks:
+####停止原来的服务
+    - name: stop {{ jetty_name }}
+      block:
+      - name: stop {{ jetty_name }} service
+        systemd:
+          name: "{{ jetty_name }}"
+          state: stopped
+        ignore_errors: yes
+
+      - name: check if or not {{ jetty_name }} is still running
+        shell: ps -ef | grep {{ jetty_name }} | grep java | grep -v grep | wc -l
+        register: app_status
+
+      - debug: msg= "{{ app_status }}"
+
+      - name: force kill pid
+        shell: ps -ef | grep {{ jetty_name }} | grep java | grep -v grep | awk '{print $2}' |xargs kill -9
+        when: app_status.stdout|int > 0
+        ignore_errors: yes
+
+####删除缓存
+    - name: delete old data and clean cache
+      file:
+        path: "{{ item[0] }}" 
+        state: "{{ item[1] }}"
+        mode: 0755
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+      with_nested:
+        - [ "/opt/soft/tomcat/{{ jetty_name }}/work/", "/opt/soft/tomcat/{{ jetty_name }}/temp/","/opt/soft/tomcat/{{ jetty_name }}/webapps/" ]
+        - [ "absent", "directory" ]
+      ignore_errors: yes
+      
+####复制war包到远程主机上
+    - name: copy file
+      copy:
+        src: "{{ app_file }}"
+        dest: "/opt/soft/tomcat/{{ jetty_name }}/webapps/"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+
+####启动服务
+    - name: start {{ jetty_name }}
+      systemd:
+        name: "{{ jetty_name }}"
+        state: started
+      ignore_errors: yes
+      
+    - name: wait start
+      wait_for: "port={{ jetty_port }} delay=10"
+
+    - name: wait 30s
+      pause: seconds=30

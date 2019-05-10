@@ -1,0 +1,33 @@
+FROM docker.51xf.cn/centos/centos:7
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+RUN set -xe \
+&& yum -y install net-tools vim wget telnet curl rsync \
+&& yum clean all \
+&& localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8 \
+&& cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+&& echo 'Asia/Shanghai' > /etc/timezone
+
+ENV LANG zh_CN.UTF-8
+ENV LANGUAGE zh_CN:zh
+
+
+ADD jdk-8u181-linux-x64.tar.gz /usr/local/
+
+ENV JAVA_HOME /usr/local/jdk1.8.0_181
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV PATH $PATH:$JAVA_HOME/bin
+
+
+ADD alibaba-rocketmq-3.2.6.tar.gz /opt/
+
+ENV ROCKETMQ_HOME  /opt/alibaba-rocketmq
+WORKDIR  ${ROCKETMQ_HOME}
+
+COPY rocketmq_broker.conf rocketmq_namesrv.conf ./conf/
+
+RUN set -xe \
+&& chmod 755 -R ${ROCKETMQ_HOME} \
+&& chown root:root -R ${ROCKETMQ_HOME} \
+&& mkdir -p ./store/commitlog \
+&& mkdir -p ./logs/

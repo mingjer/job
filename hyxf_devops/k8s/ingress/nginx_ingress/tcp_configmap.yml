@@ -1,0 +1,14 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-config
+  namespace: nginx-ingress
+data:
+    stream-snippets: |
+      upstream mysql-tcp {
+          server mysql-m-sfs-0.mysql-m-svc.dev1:3306;
+      }
+      server {
+          listen 3306;
+          proxy_pass mysql-tcp;
+      }

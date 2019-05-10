@@ -1,0 +1,57 @@
+- hosts: '{{ host }}'
+  become: yes
+  become_user: app
+  vars:
+    app_user: app
+    start_shell: '{{ start_shell }}'
+    restart_shell: '{{ restart_shell }}'
+    run_shell: '{{ run_shell }}'
+    zip_file: '{{ zip_file }}'
+
+  tasks:
+#####判断相关的目录是否存在,不存在则创建
+    - name: create directory if don't exist
+      block:
+      - name: "Checking directory"
+        stat:
+          path: "{{ item }}"
+        with_items:
+          - ["/opt/soft/easyflow"]
+        register: folder_stats
+
+      - name: "creat multiple directory"
+        file:
+          path: "{{item.item}}"
+          state: directory
+          mode: 0755
+          group: "{{ app_user }}"
+          owner: "{{ app_user }}"
+        with_items:
+         - "{{folder_stats.results}}"
+        when: item.stat.exists == false
+
+####复制相关脚本
+    - name: copy file
+      copy:
+        src: "{{ item }}"
+        dest: /opt/soft/easyflow
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: 0755
+      with_items:
+        - ["{{ start_shell }}"]
+        - ["{{ restart_shell }}"]
+        - ["{{ run_shell }}"]
+        - ["{{ zip_file }}"]
+
+####安装应用
+    - name: install
+      shell: sh /opt/soft/easyflow/easyFlowRun.sh install
+      args:
+        chdir: /opt/soft/easyflow
+
+####启动应用
+    - name: start
+      shell: sh /opt/soft/easyflow/restart.sh
+      args:
+        chdir: /opt/soft/easyflow

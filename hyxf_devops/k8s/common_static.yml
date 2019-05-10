@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-cm
+  namespace: 51xf_namespace
+data:
+  console-web.conf: |
+    upstream console-web {
+        server console-svc:8080;
+    }
+    
+    server {
+        listen        8080;
+        server_name   localhost;
+        access_log    /dev/stdout main;
+        error_log     /dev/stderr warn;
+        sendfile                   off;
+        client_max_body_size       100m;
+        client_body_buffer_size    128k;
+        client_header_buffer_size: 2046k
+        
+        location ^~ /static {
+            add_header Access-Control-Allow-Origin *;
+            root /opt/soft/data/console_static;
+            break;
+        }
+        
+        location / {
+            proxy_pass                 http://console-web/;
+            proxy_set_header           Host             $host;
+            proxy_set_header           X-Real-IP        $remote_addr;
+            proxy_set_header           X-Forwarded-For  $proxy_add_x_forwarded_for;
+            proxy_max_temp_file_size   0;
+            proxy_connect_timeout      300;
+            proxy_send_timeout         300;
+            proxy_read_timeout         300;
+            proxy_temp_file_write_size 102400k;
+            proxy_http_version         1.1;
+            proxy_request_buffering    off;
+            proxy_set_header           hyxf_web_flag $http_hyxf_web_flag;
+        }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: 51xf_app-svc
+  namespace: 51xf_namespace
+spec:
+  type: NodePort
+  ports:
+  - name: http-pub-port
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: 51xf_app-dm
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: 51xf_app
+  namespace: 51xf_namespace
+spec:
+  selector:
+    matchLabels:
+      app: 51xf_app-dm
+  replicas: rc_no
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: 51xf_app-dm
+        version: v-51xf_number
+    spec:
+      terminationGracePeriodSeconds: 60
+      restartPolicy: Always
+      containers:
+      - name: 51xf_app
+        image: docker.51xf.cn/51xf/51xf_app:51xf_version
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d/
+          readOnly: true
+          name: nginx-conf
+        - mountPath: /var/log/nginx
+          name: log
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-cm
+          items:
+            - key: console-web.conf
+              path: console-web.conf # dig directory
+      - name: log
+        emptyDir: {}

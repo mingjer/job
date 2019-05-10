@@ -1,0 +1,186 @@
+---
+- hosts: '{{ host }}'
+  remote_user: root
+  gather_facts: false
+  vars:
+    java_version: 1.8.0_144
+    java_version_source: jdk-8u144-linux-x64.tar.gz
+  tasks:
+    ######上传管理员sshkey公钥
+    - name: "upload keys"
+      authorized_key:
+        user: root
+        key: "{{ lookup('file', '/etc/ansible/key/admin_keys') }}"
+        state: present
+        exclusive: no
+
+    #####初始化系统环境    
+    - name: "init system"
+      block:
+      #####停用selinux和更改时区到UTC
+      - name: "disable selinux"
+        selinux:
+          state: disabled
+
+      - name: "init timezone"
+        file: src=/usr/share/zoneinfo/UTC dest=/etc/localtime state=link
+
+      - name: "ntp setup"
+        cron: name=" ntp time rsync" job="ntpdate time1.aliyun.com" minute=*/10 state=present
+
+      ###调整openfile大小
+      - name: "ulimit configure temporary"
+        shell: ulimit -SHn 655360
+      
+      - name: "modify configure of ulimit for ever"
+        copy: src=/etc/ansible/file/limits.conf dest=/etc/security/ owner=root mode=644
+
+      #####关闭邮件提醒
+      - name: "shutdown mail notify"
+        shell: /bin/echo "unset MAILCHECK" >> /etc/profile && source /etc/profile
+        tags: 
+        - mailshut
+
+      #####关闭和禁用firewalld服务
+      - name: "shutdown firewalld service"
+        systemd:
+          name: firewalld
+          state: stopped
+          enabled: no
+
+      #####设置history
+      - name: "history add config"
+        lineinfile:
+          dest: /etc/profile
+          line: "{{ item }}"
+        with_items:
+          - 'HISTFILESIZE=3000'
+          - "HISTTIMEFORMAT='%F %T   '"
+          - 'HISTIGNORE="history:which"'
+          - 'shopt -s histappend'
+          - 'PROMPT_COMMAND="history -a"'
+          - 'export HISTTIMEFORMAT'
+             
+      - name: "history change config"
+        lineinfile:
+          dest: /etc/profile
+          regexp: '^HISTSIZE='
+          line: 'HISTSIZE=3000'
+
+          
+      #####优化sshd服务
+      - name: set sshd_config
+        lineinfile: dest=/etc/ssh/sshd_config state=present regexp='{{item.reg}}'  line='{{item.line}}'  
+        with_items:
+            - { reg: "^UseDNS",line: "UseDNS no" }
+            - { reg: "^GSSAPIAuthentication",line: "GSSAPIAuthentication no" }
+            
+      #####重启sshd服务
+      - name: service sshd restart
+        systemd:
+          name: sshd
+          state: restarted
+
+      #####安装相关软件
+      - name: "setup epel-release"
+        get_url: url=http://mirrors.aliyun.com/repo/epel-7.repo dest=/etc/yum.repos.d/epel.repo
+
+#      - name: "setup the fast yum repo"
+#        yum_repository:
+#          name: epel
+#          file: external_repos
+#          baseurl: https://mirrors.tuna.tsinghua.edu.cn/centos/$releasever/os/$basearch/
+#          gpgcheck: no
+
+      - name: "install software"
+        yum: name="{{item}}" state=latest
+        with_items:
+          - ["gcc","gcc-c++","gdb","python2-pip","iotop","telnet","ntpdate","mutt","msmtp","wget","vim","htop","docker","rsync","lrzsz","psmisc","net-tools","curl","jq","lsof","nginx"]
+
+      - name: "start service"
+        systemd:
+          name: "{{item}}"
+          state: started
+          daemon_reload: yes
+          enabled: yes
+        with_items:
+          - 'docker'
+          - 'nginx'
+
+      - name: "change docker repo address"
+        copy: src=/etc/ansible/file/docker_daemon.json dest=/etc/docker/daemon.json
+
+      - name: "restart docker service"
+        systemd:
+          name: "{{item}}"
+          state: restarted
+          daemon_reload: yes
+          enabled: yes
+        with_items:
+          - 'docker'
+
+      - name: "Time synchronization"
+        shell: ntpdate -u ntp.api.bz
+
+      #####安装docker-py模块
+      - name: install docker-py module
+        pip: 
+          name: '{{ item }}'
+          state: latest
+          extra_args: --index-url http://pypi.douban.com/simple --trusted-host pypi.douban.com
+        with_items:
+          - 'pip'
+          - 'docker-py'
+
+    #检查jdk是否安装
+      - name: "check jdk version exist"
+        shell: /usr/local/jdk/bin/java -version 2>&1 | awk '/version/{print $NF}'|sed 's/\"//g'
+        register: resultt
+      - name: "debug check jdk version"
+        debug: var=resultt.stdout verbosity=0
+
+    #安装jdk
+    - name: "block jdk"
+      block:
+      - name: "Download jdk file"
+        get_url: url=https://img.ga096.cn/{{ java_version_source }} dest=/tmp/{{ java_version_source }}
+
+      - name: "Checking directory"
+        file: path=/usr/local/jdk{{ java_version }} state=directory
+
+      - name: "Extract archive"
+        unarchive: src=/tmp/{{ java_version_source }} dest=/usr/local/ copy=no
+
+      - name: "create java link"
+        file: src=/usr/local/jdk{{ java_version }}/ dest=/usr/local/jdk state=link
+        
+      - name: "create java command link"
+        file: src=/usr/local/jdk{{ java_version }}/bin/java dest=/usr/bin/java state=link
+        
+      - name: "java_profile config"
+        shell: /bin/echo {{ item }} >> /etc/profile && source /etc/profile && ls -al /tmp
+        with_items:
+          - export JAVA_HOME=/usr/local/jdk
+          - export PATH=\$JAVA_HOME/bin:\$PATH
+      when: resultt.stdout != java_version
+
+    #升级内核
+    - name: "upgarde kernel"
+      block:
+      - name: "copy kernel repo file"
+        copy: src=/etc/ansible/file/elrepo.repo dest=/etc/yum.repos.d/
+
+      - name: "install latest kernel"
+        yum:
+          name: kernel-ml
+          state: latest
+          enablerepo: "elrepo-kernel"
+
+      - name: "restart server"
+        shell: sed -i '/GRUB_DEFAULT/s/saved/0/' /etc/default/grub && grub2-mkconfig -o /boot/grub2/grub.cfg
+ 
+    ###5s后重启服务器
+    - name: "restart OS"
+      command: shutdown -r -t 5
+      ignore_errors: true
+   

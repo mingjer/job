@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: 51xf_app-svc
+    namespace: 51xf_namespace
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8080'
+  spec:
+    type: NodePort
+    ports:
+    - name: debug-port
+      port: 7070
+    - name: http-pub-port
+      port: 8080
+      targetPort: 8080
+    - name: http-private-port
+      port: 9191
+      targetPort: 9191
+    sessionAffinity: ClientIP
+    sessionAffinityConfig:
+      clientIP:
+        timeoutSeconds: 10800
+    selector:
+      app: 51xf_app-dm
+
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: 51xf_app
+    namespace: 51xf_namespace
+  spec:
+    selector:
+      matchLabels:
+        app: 51xf_app-dm
+    replicas: rc_no
+    revisionHistoryLimit: 5
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+    template:
+      metadata:
+        labels:
+          app: 51xf_app-dm
+          version: v-51xf_number
+      spec:
+        terminationGracePeriodSeconds: 60
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values: 
+                      - 51xf_app-dm
+                topologyKey: "kubernetes.io/hostname"
+        containers:
+        - name: 51xf_app
+          image: docker.51xf.cn/51xf/51xf_app:51xf_version
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - sh
+                - -c
+                - "sleep 5"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"
+            limits:
+              memory: "2560Mi"
+              cpu: "4"
+          env:
+          - name: JAVA_OPTS
+            value: "-XmxMAX_MEMm"
+          - name: CHANGE_TIME
+            value: "51xf_time"
+#          - name: APP_ENV
+#            value: 51xf_environment
+#          readinessProbe:
+#            httpGet:
+#              path: /info
+#              port: 8080
+#            initialDelaySeconds: 20
+#            periodSeconds: 5
+#            timeoutSeconds: 3
+#            failureThreshold: 3
+#            successThreshold: 1
+#          livenessProbe:
+#            httpGet:
+#              path: /info
+#              port: 8080
+#            initialDelaySeconds: 60
+#            periodSeconds: 15
+#            timeoutSeconds: 3
+#            failureThreshold: 3
+#          readinessProbe:
+#            tcpSocket:
+#              port: 8080
+#            initialDelaySeconds: 20
+#            periodSeconds: 5
+#            timeoutSeconds: 3
+#            failureThreshold: 3
+#            successThreshold: 1
+#          livenessProbe:
+#            tcpSocket:
+#              port: 8080
+#            initialDelaySeconds: 60
+#            periodSeconds: 15
+#            timeoutSeconds: 3
+#            failureThreshold: 3

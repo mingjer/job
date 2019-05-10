@@ -1,0 +1,20 @@
+- hosts: '{{ host }}'
+  gather_facts: false
+  vars:
+    ansible_environment: '{{ ansible_environment }}'
+    k8s_yml: '{{ k8s_yml }}'
+    service_name: '{{ service_name }}'
+    
+  tasks:
+#####复制yml文件到远程服务器上上
+    - name: copy file
+      copy: 
+        src: "{{ k8s_yml }}"
+        dest: /opt/deploy/
+        backup: yes
+        force: yes
+      
+    - name: Create a kubernetes namespace
+      shell: kubectl apply -f {{ service_name }}_{{ ansible_environment }}.yml --record
+      args:
+        chdir: /opt/deploy/

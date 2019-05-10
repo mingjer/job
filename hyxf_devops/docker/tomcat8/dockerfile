@@ -1,0 +1,45 @@
+FROM docker.51xf.cn/centos/centos:7
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+RUN set -xe \
+&& yum -y install net-tools vim wget telnet curl rsync \
+&& yum clean all \
+&& localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8 \
+&& cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+&& echo 'Asia/Shanghai' > /etc/timezone
+
+ENV LANG zh_CN.UTF-8
+ENV LANGUAGE zh_CN:zh
+
+
+
+ADD jdk-8u181-linux-x64.tar.gz /usr/local/
+
+ENV JAVA_HOME /usr/local/jdk1.8.0_181
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV PATH $PATH:$JAVA_HOME/bin
+
+
+
+ENV TOMCAT_MAJOR=8
+ENV TOMCAT_VERSION=8.5.35
+ENV CATALINA_HOME=/opt/soft/tomcat
+
+RUN set -xe \
+&& mkdir -p /opt/soft/ \
+&& mkdir -p /opt/soft/logs/ \
+&& wget http://mirror.bit.edu.cn/apache/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz \
+&& tar -xf apache-tomcat-${TOMCAT_VERSION}.tar.gz -C /opt/soft/  \
+&& mv /opt/soft/apache-tomcat-${TOMCAT_VERSION} /opt/soft/tomcat \
+&& chmod 755 -R ${CATALINA_HOME}/bin/ \
+&& rm -fr ${CATALINA_HOME}/webapps/ \
+&& rm -fr ${CATALINA_HOME}/work/ \
+&& rm -fr ${CATALINA_HOME}/temp/ \
+&& rm -fr apache-tomcat-${TOMCAT_VERSION}.tar.gz
+
+WORKDIR $CATALINA_HOME
+
+
+EXPOSE 8080
+
+CMD ["/opt/soft/tomcat/bin/catalina.sh", "run"]

@@ -1,0 +1,8 @@
+- hosts: "{{ host }}"
+  roles:
+    - {role: "jetty_proj_init",
+        appName: "{{ service_name }}",
+        jettyport: "{{ service_port }}",
+        JAVA_XMX: 2560,
+        agent_enabled: false
+        }

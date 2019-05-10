@@ -1,0 +1,23 @@
+aliyun-core-uat-A-2-27 ansible_host=172.16.2.27 ansible_ssh_user=app ansible_ssh_private_key_file=/etc/ansible/key/prepro_deploysshkey
+aliyun-core-uat-A-3-187 ansible_host=172.16.3.187 ansible_ssh_user=app ansible_ssh_private_key_file=/etc/ansible/key/prepro_deploysshkey
+aliyun-core-uat-A-3-105 ansible_host=172.16.0.105 ansible_ssh_user=app ansible_ssh_private_key_file=/home/app/.ssh/UAT_NEW_APP_id_rsa
+aliyun-core-uat-A-0-118 ansible_host=172.16.0.118 ansible_ssh_user=app ansible_ssh_private_key_file=/home/app/.ssh/UAT_NEW_APP_id_rsa
+aliyun-core-uat-A-1-236 ansible_host=172.16.1.236 ansible_ssh_user=app ansible_ssh_private_key_file=/home/app/.ssh/UAT_NEW_APP_id_rsa
+aliyun-core-uat-A-3-103 ansible_host=172.17.3.103 ansible_ssh_user=app ansible_ssh_private_key_file=/home/app/.ssh/UAT_NEW_APP_id_rsa
+
+
+
+
+idc-uat-168-0-203 ansible_host=192.168.0.203 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+
+[thirdparty-server]
+aliyun-core-uat-A-2-27
+aliyun-core-uat-A-3-187
+aliyun-core-uat-A-3-105
+
+[smgpolicy-server]
+aliyun-core-uat-A-0-118
+aliyun-core-uat-A-1-236
+
+[databus-server]
+idc-uat-168-0-203

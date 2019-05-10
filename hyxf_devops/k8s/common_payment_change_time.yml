@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: 51xf_app-svc
+    namespace: 51xf_namespace
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8080'
+  spec:
+    type: NodePort
+    ports:
+    - name: debug-port
+      port: 7070
+    - name: app-port
+      port: 8080
+    - name: as-port
+      port: 9191
+    sessionAffinity: ClientIP
+    sessionAffinityConfig:
+      clientIP:
+        timeoutSeconds: 10800
+    selector:
+      app: 51xf_app-dm
+
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: 51xf_app
+    namespace: 51xf_namespace
+  spec:
+    selector:
+      matchLabels:
+        app: 51xf_app-dm
+    replicas: rc_no
+    revisionHistoryLimit: 5
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+    template:
+      metadata:
+        labels:
+          app: 51xf_app-dm
+          version: v-51xf_number
+      spec:
+        terminationGracePeriodSeconds: 60
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values: 
+                      - 51xf_app-dm
+                topologyKey: "kubernetes.io/hostname"
+        containers:
+        - name: 51xf_app
+          image: docker.51xf.cn/51xf/51xf_app:51xf_version
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - sh
+                - -c
+                - "sleep 5"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"
+            limits:
+              memory: "2560Mi"
+              cpu: "2"
+          env:
+          - name: JAVA_OPTS
+            value: "-XmxMAX_MEMm"
+          - name: CHANGE_TIME
+            value: "51xf_time"
+          volumeMounts:
+            - name: cert
+              mountPath: /opt/soft/jar/config/      
+        volumes:
+        - name: cert
+          persistentVolumeClaim:
+            claimName: data-cert-51xf_namespace
+#          livenessProbe:
+#            httpGet:
+#              path: /health
+#              port: 8080
+#            initialDelaySeconds: 60
+#            periodSeconds: 5
+#            timeoutSeconds: 3
+#            failureThreshold: 3
+#          readinessProbe:
+#            httpGet:
+#              path: /health
+#              port: 8080
+#            initialDelaySeconds: 90
+#            periodSeconds: 5
+#            timeoutSeconds: 3
+#            failureThreshold: 3

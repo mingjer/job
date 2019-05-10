@@ -1,0 +1,56 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-sentinel-svc
+  namespace: dev1
+spec:
+  clusterIP: None
+  ports:
+  - name: redis
+    port: 26379
+    targetPort: 26379
+  selector:
+    app: redis-sentinel-dm
+---
+kind: StatefulSet
+apiVersion: apps/v1beta1
+metadata:
+  name: redis-sentinel-sfs
+  namespace: dev1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-sentinel-dm
+  serviceName: redis-sentinel-svc
+  template:
+    metadata:
+      labels:
+        app: redis-sentinel-dm
+    spec:
+      containers:
+      - name: redis-sentinel-pod
+        image: docker.51xf.cn/redis/redis:3.2
+        imagePullPolicy: IfNotPresent
+        command:
+        - sh          
+        args:
+        - -c
+        - cp /tmp/redis-sentinel.conf /data/; redis-sentinel /data/redis-sentinel.conf
+        ports:
+        - containerPort: 26379
+          name: sentinel-port
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /tmp/
+          name: redis-config
+          readOnly: false
+      serviceAccountName: redis-sentinel
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: redis-config
+        configMap:
+          name: redis-cm
+          items:
+            - key: redis-sentinel.conf
+              path: redis-sentinel.conf

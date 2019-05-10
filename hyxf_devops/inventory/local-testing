@@ -1,0 +1,118 @@
+idc-p2p-dev1-31 ansible_host=192.192.0.31 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-dev1-32 ansible_host=192.192.0.32 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-dev1-33 ansible_host=192.192.0.33 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-dev1-34 ansible_host=192.192.0.34 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-dev1-35 ansible_host=192.192.0.35 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+idc-p2p-dev1-36 ansible_host=192.192.0.36 ansible_ssh_user=root ansible_ssh_private_key_file=/etc/ansible/key/deploysshkey
+
+
+[zk-server]
+idc-p2p-dev1-31 zk_id=1
+idc-p2p-dev1-32 zk_id=2
+idc-p2p-dev1-33 zk_id=3
+
+
+[idc-p2p-dev1]
+idc-p2p-dev1-31
+idc-p2p-dev1-32
+idc-p2p-dev1-33
+idc-p2p-dev1-34
+idc-p2p-dev1-35
+idc-p2p-dev1-36
+
+[mq-server]
+idc-p2p-dev1-31
+
+[sc-server]
+idc-p2p-dev1-31
+
+[convert-server]
+idc-p2p-dev1-31
+
+[cc-server]
+idc-p2p-dev1-32
+
+[deploy-server]
+idc-p2p-dev1-32
+
+[mvc-server]
+idc-p2p-dev1-32
+
+[nginx-server]
+idc-p2p-dev1-32
+
+[asset-server]
+idc-p2p-dev1-33
+
+[credit-server]
+idc-p2p-dev1-33
+
+[flow-server]
+idc-p2p-dev1-33
+
+[icdm-server]
+idc-p2p-dev1-33
+
+[market-server]
+idc-p2p-dev1-33
+
+[platform-server]
+idc-p2p-dev1-33
+
+[product-server]
+idc-p2p-dev1-33
+
+[user-server]
+idc-p2p-dev1-33
+
+[console-server]
+idc-p2p-dev1-34
+
+[datacenter-server]
+idc-p2p-dev1-34
+
+[dpkweb-server]
+idc-p2p-dev1-34
+
+[dpkeasyflow-server]
+idc-p2p-dev1-34
+
+[fdd-server]
+idc-p2p-dev1-34
+
+[gxp-server]
+idc-p2p-dev1-34
+
+[riskengine-server]
+idc-p2p-dev1-34
+
+[batch-server]
+idc-p2p-dev1-35
+
+[payment-gateway-server]
+idc-p2p-dev1-35
+
+[payment-transactiont-server]
+idc-p2p-dev1-35
+
+[payment-router-server]
+idc-p2p-dev1-35
+
+[payment-direct-transaction-server]
+idc-p2p-dev1-35
+
+[mysql-server]
+idc-p2p-dev1-36
+
+
+
+#[mongo-server]
+#idc-p2p-dev1-32 ipAddr=idc-p2p-dev1-32 
+#idc-p2p-dev1-33 ipAddr=idc-p2p-dev1-33
+#idc-p2p-dev1-34 ipAddr=idc-p2p-dev1-34
+
+#[redis-server]
+#idc-p2p-dev1-31 server_name=redisA-master server_port=6379 slaveof_str=""
+#idc-p2p-dev1-32 server_name=redisB-master server_port=6379 slaveof_str=""
+#idc-p2p-dev1-33 server_name=redisB-slave server_port=6379 slaveof_str="slaveof idc-p2p-dev1-32 6379"
+#idc-p2p-dev1-34 server_name=redisA-slave server_port=6379 slaveof_str="slaveof idc-p2p-dev1-31 6379"

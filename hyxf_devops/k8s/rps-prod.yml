@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: rps
+    namespace: ops-tools
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8080'
+  spec:
+    type: NodePort
+    ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    sessionAffinity: ClientIP
+    sessionAffinityConfig:
+      clientIP:
+        timeoutSeconds: 10800
+    selector:
+      app: rps
+
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: rps
+    namespace: ops-tools
+  spec:
+    selector:
+      matchLabels:
+        app: rps
+    replicas: 2
+    revisionHistoryLimit: 5
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+    template:
+      metadata:
+        labels:
+          app: rps
+          version: "v1"
+      spec:
+        terminationGracePeriodSeconds: 60
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values: 
+                      - rps
+                topologyKey: "kubernetes.io/hostname"
+        containers:
+        - name: rps
+          image: docker.51xf.cn/ops-tools/rps:1.18
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - sh
+                - -c
+                - "sleep 5"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"
+            limits:
+              memory: "2048Mi"
+              cpu: "2"
+          env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: prod,no-liquibase
+          - name: JAVA_OPTS
+            value: -Xms256m -Xmx1500m
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3

@@ -1,0 +1,12 @@
+FROM docker.51xf.cn/jdk/jdk:1.8
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+ENV PORT 9595
+
+ADD ./rocketmq-console-ng-1.0.0.jar /opt/
+
+WORKDIR /opt/
+
+ENTRYPOINT ["java","-jar","./rocketmq-console-ng-1.0.0.jar","--server.port=${PORT}","--rocketmq.config.namesrvAddr=0.0.0.0:9876"]
+
+EXPOSE ${PORT}

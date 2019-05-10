@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: rocket-b-pvc-0
+    namespace: dev1
+  spec:
+    storageClassName: rocket-broker
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 4Gi
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: rocket-b-pvc-1
+    namespace: dev1
+  spec:
+    storageClassName: rocket-broker
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 4Gi
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: rocket-n-pvc-0
+    namespace: dev1
+  spec:
+    storageClassName: rocket-namesrv
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 4Gi
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: rocket-n-pvc-1
+    namespace: dev1
+  spec:
+    storageClassName: rocket-namesrv
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 4Gi

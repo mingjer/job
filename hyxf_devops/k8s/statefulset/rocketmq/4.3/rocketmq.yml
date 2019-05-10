@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rocketmq-svc
+  namespace: dev1
+spec:
+  type: NodePort
+  ports:
+  - name: http-9876
+    nodePort: 9876
+    port: 9876
+    targetPort: 9876
+  - name: http-10909
+    nodePort: 10909
+    port: 10909
+    targetPort: 10909
+  - name: http-10911
+    nodePort: 10911
+    port: 10911
+    targetPort: 10911
+  selector:
+    app: rocketmq-dm
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rocketmq-deploy
+  namespace: dev1
+spec:
+  replicas: 1
+  template:
+    metadata:
+     labels:
+       app: rocketmq-dm
+    spec:
+      containers:
+      - name: broker
+        image: docker.51xf.cn/rocketmq/rocketmq-broker:4.3.0-k8s
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 10909
+          - containerPort: 10911
+        volumeMounts:
+          - mountPath: /opt/logs
+            name: brokeroptlogs
+          - mountPath: /opt/store
+            name: brokeroptstore
+      - name: namesrv
+        image: docker.51xf.cn/rocketmq/rocketmq-namesrv:4.3.0-k8s
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 9876
+        volumeMounts:
+          - mountPath: /opt/logs
+            name: namesrvoptlogs
+          - mountPath: /opt/store
+            name: namesrvoptstore
+      volumes:
+      - name: brokeroptlogs
+        persistentVolumeClaim:
+          claimName: rocket-b-pvc-0
+      - name: brokeroptstore
+        persistentVolumeClaim:
+          claimName: rocket-b-pvc-1
+      - name: namesrvoptlogs
+        persistentVolumeClaim:
+          claimName: rocket-n-pvc-0
+      - name: namesrvoptstore
+        persistentVolumeClaim:
+          claimName: rocket-n-pvc-1

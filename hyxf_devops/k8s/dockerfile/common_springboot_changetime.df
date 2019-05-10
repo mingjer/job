@@ -1,0 +1,19 @@
+FROM docker.51xf.cn/jdk/jdk:time
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+ARG APP_ENV=k8s-dev1
+ENV APP_ENV="${APP_ENV}"
+
+ARG JAVA_OPTS=""
+ENV JAVA_OPTS="{$JAVA_OPTS}"
+
+ARG CHANGE_TIME=""
+ENV CHANGE_TIME="{$CHANGE_TIME}"
+
+WORKDIR /opt/soft/jar
+
+EXPOSE 7070 8080 9191
+
+CMD LD_PRELOAD=/usr/lib64/faketime/libfaketime.so.1 FAKETIME=${CHANGE_TIME}d DONT_FAKE_MONOTONIC=1 java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7070 ${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=${APP_ENV} -jar ./51xf_war.jar --server.port=8080
+
+COPY ./51xf_war.jar ./

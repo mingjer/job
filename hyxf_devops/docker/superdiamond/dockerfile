@@ -1,0 +1,32 @@
+FROM docker.51xf.cn/centos/centos:7
+MAINTAINER WangXiangYang <wangxiangyang@51xf.cn>
+
+RUN set -xe \
+&& yum -y install net-tools vim wget telnet curl rsync \
+&& yum clean all \
+&& localedef -c -f UTF-8 -i zh_CN zh_CN.UTF-8 \
+&& cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+&& echo 'Asia/Shanghai' > /etc/timezone
+
+ENV LANG zh_CN.UTF-8
+ENV LANGUAGE zh_CN:zh
+
+
+ADD jdk-8u181-linux-x64.tar.gz /usr/local/
+
+ENV JAVA_HOME /usr/local/jdk1.8.0_181
+ENV CLASSPATH $JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+ENV PATH $PATH:$JAVA_HOME/bin
+
+
+RUN set -xe \
+&& mkdir -p /opt/soft/
+
+ADD ./superdiamond /opt/soft/superdiamond
+
+WORKDIR /opt/soft/superdiamond
+
+CMD ["sh", "-c", "./bin/server.sh start"]
+
+EXPOSE 8080
+EXPOSE 9191

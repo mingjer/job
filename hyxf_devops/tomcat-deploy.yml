@@ -1,0 +1,7 @@
+- hosts: "{{ host }}"
+  roles:
+    - {role: "tomcat-deploy",
+        tomcat_name: "{{ tomcat_name }}",
+        tomcat_port: "{{ tomcat_port }}",
+        src_dir: "{{ src_dir }}",
+        }
